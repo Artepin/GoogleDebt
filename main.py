@@ -41,38 +41,71 @@ def redOrYellow(data):
 
 def prov(data):
     match =  re.search(r'\d{2}',data)
-    print ("true" if match else 'false')
+    if match:
+        return True
+    else:
+        return False
 
 
-def changeOfColor(coord):
-    worksheet.format(coord, {
-                "backgroundColor": {
-                    "red": 1.0,
-                    "green": 0.0,
-                    "blue": 0.0
+def changeOfColor(coord,color):
+    if color == "red":
+        worksheet.format(coord, {
+                    "backgroundColor": {
+                        "red": 1.0,
+                        "green": 0.0,
+                        "blue": 0.0
+                    }
                 }
-            }
-                        )
+                            )
+    elif color == "yellow":
+        worksheet.format(coord, {
+                    "backgroundColor": {
+                        "red": 1.0,
+                        "green": 1.0,
+                        "blue": 0.0
+                    }
+                }
+                         )
+    else:
+        print("color is invalid")
+
+def isItLate(date):
+    dateNow = datetime.date.today()
+    datePlan = dateTransform(date)
+    razn = dateNow - datePlan
+    day = razn.days
+    if int(day) > 14:
+        print("Red color")
+        return True
+    else:
+        print("Yellow color")
+        return False
+
 
 def prohod(dataColumn):
+    j=0
     for i in dataColumn:
-        match = prov(dataColumn[i])
+        j = j+1
+        match = re.search(r'\d[2]',i)
         if match:
             print("Match true")
-            cellCoord = 'E'+i
+            cellCoord = 'E'+str(j)
             cell = worksheet.acell(cellCoord).value
-
             if prov(cell):
-                print("change color")
-                changeOfColor(cellCoord)
+                print("Work done")
+                #changeOfColor(cellCoord)
             else:
                 print("No date")
+                if isItLate(i):
+                    changeOfColor(cellCoord,"red")
+                else:
+                    changeOfColor(cellCoord, "yellow")
         else:
             print("Match False")
 
 
 column = worksheet.col_values(4)
-prohod(column)
+
 
 
 datePlanForm = dateTransform(datePlan)
@@ -81,5 +114,4 @@ result = redOrYellow(countDays)
 print(datePlanForm)
 print(countDays)
 print(result)
-print(col)
-print(prov(a1))
+prohod(column)
