@@ -1,15 +1,15 @@
 import gspread
 import datetime
 gp = gspread.service_account(filename='./auth.json')
-worksheet = gp.open('TestParsing')
-sheet = worksheet.get_worksheet(0)
-
+spreadsheet = gp.open('TestParsing')
+worksheet = spreadsheet.get_worksheet(0)
 dateNow = datetime.date.today()
 print(dateNow)
-datePlan = sheet.acell("D32").value
-dateFact = sheet.acell("E32").value
+yacheayka = 'D34'
+datePlan = worksheet.acell(yacheayka).value
+dateFact = worksheet.acell("E32").value
 if dateFact == None:
-    sheet.format("E32", {
+    worksheet.format("E32", {
                 "backgroundColor": {
                     "red": 1.0,
                     "green": 0.0,
@@ -32,13 +32,15 @@ def dateRazn(data1,data2):
 def redOrYellow(data):
     razn = data.days
     if int(razn) > 14:
-        print( "Red color")
+        print("Red color")
     else:
         print("Yellow color")
 datePlanForm = dateTransform(datePlan)
 countDays = dateRazn(datePlanForm, dateNow)
 result = redOrYellow(countDays)
-#dateRazn = datePlanForm-dateNow
 print(datePlanForm)
 print(countDays)
 print(result)
+
+col = worksheet.col_values(4)
+print(col)
