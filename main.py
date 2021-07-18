@@ -40,10 +40,14 @@ def redOrYellow(data):
         print("Yellow color")
 
 def prov(data):
-    match =  re.search(r'\d{2}',data)
+    if data == None:
+        data = '0'
+    match =re.search(r'\d{2}',data)
     if match:
+        print("date is valid")
         return True
     else:
+        print("have no date")
         return False
 
 
@@ -91,15 +95,18 @@ def prohod(dataColumn):
             print("Match true")
             cellCoord = 'E'+str(j)
             cell = worksheet.acell(cellCoord).value
+            print(cell)
             if prov(cell):
                 print("Work done")
                 #changeOfColor(cellCoord)
             else:
                 print("No date")
                 if isItLate(i):
-                    changeOfColor(cellCoord,"red")
+                    #changeOfColor(cellCoord,"red")
+                    print("changed red color on "+ cellCoord)
                 else:
-                    changeOfColor(cellCoord, "yellow")
+                    #changeOfColor(cellCoord, "yellow")
+                    print("changed yellow color on "+ cellCoord)
         else:
             print("Match False")
 
