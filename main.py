@@ -4,23 +4,7 @@ import re
 gp = gspread.service_account(filename='./auth.json')
 spreadsheet = gp.open('TestParsing')
 worksheet = spreadsheet.get_worksheet(0)
-dateNow = datetime.date.today()
-print(dateNow)
-yacheayka = 'D34'
-datePlan = worksheet.acell(yacheayka).value
-dateFact = worksheet.acell("E32").value
-if dateFact == None:
-    worksheet.format("E32", {
-                "backgroundColor": {
-                    "red": 1.0,
-                    "green": 0.0,
-                    "blue": 0.0
-                }
-            }
-                        )
-
-
-print(datePlan)
+column = worksheet.col_values(4)
 def dateTransform(data):
     if data !='None':
         day,month,year = data.split('.')
@@ -49,7 +33,6 @@ def prov(data):
     else:
         print("have no date")
         return False
-
 
 def changeOfColor(coord,color):
     if color == "red":
@@ -85,7 +68,6 @@ def isItLate(date):
         print("Yellow color")
         return False
 
-
 def prohod(dataColumn):
     j=0
     for i in dataColumn:
@@ -98,27 +80,16 @@ def prohod(dataColumn):
             print(cell)
             if prov(cell):
                 print("Work done")
-                #changeOfColor(cellCoord)
             else:
                 print("No date")
                 if isItLate(i):
-                    #changeOfColor(cellCoord,"red")
+                    changeOfColor(cellCoord,"red")
                     print("changed red color on "+ cellCoord)
                 else:
-                    #changeOfColor(cellCoord, "yellow")
+                    changeOfColor(cellCoord, "yellow")
                     print("changed yellow color on "+ cellCoord)
         else:
             print("Match False")
 
 
-column = worksheet.col_values(4)
-
-
-
-datePlanForm = dateTransform(datePlan)
-countDays = dateRazn(datePlanForm, dateNow)
-result = redOrYellow(countDays)
-print(datePlanForm)
-print(countDays)
-print(result)
 prohod(column)
