@@ -3,8 +3,11 @@ import datetime
 import re
 gp = gspread.service_account(filename='./auth.json')
 spreadsheet = gp.open('TestParsing')
+worksheetRed = spreadsheet.get_worksheet(1)
 worksheet = spreadsheet.get_worksheet(0)
 column = worksheet.col_values(4)
+stringSheet = worksheet.row_values(11)
+
 def dateTransform(data):
     if data !='None':
         day,month,year = data.split('.')
@@ -23,16 +26,20 @@ def redOrYellow(data):
     else:
         print("Yellow color")
 
-def prov(data):
+def validDate(data):
     if data == None:
         data = '0'
-    match =re.search(r'\d{2}',data)
+    matchOtmen = re.search(r'Отменен|отменено|-', data)
+    if matchOtmen:
+        return True
+    match =re.search(r'\d\d.\d\d.\d{4}',data)
     if match:
         print("date is valid")
         return True
     else:
-        print("have no date")
+        print("date is not valid")
         return False
+
 
 def changeOfColor(coord,color):
     if color == "red":
@@ -72,13 +79,13 @@ def prohod(dataColumn):
     j=0
     for i in dataColumn:
         j = j+1
-        match = re.search(r'\d[2]',i)
+        match = validDate(i)
         if match:
             print("Match true")
             cellCoord = 'E'+str(j)
             cell = worksheet.acell(cellCoord).value
             print(cell)
-            if prov(cell):
+            if validDate(cell):
                 print("Work done")
             else:
                 print("No date")
@@ -91,5 +98,29 @@ def prohod(dataColumn):
         else:
             print("Match False")
 
+def copyString(fromString, startCell):
+    valX = worksheet.acell(startCell).row
+    valY = worksheet.acell(startCell).col
+    if worksheet.acell(startCell).value == None:
+        for i in fromString:
+            worksheet.update_cell(valX, valY, i)
+            valY = valY + 1
+    else:
+        print("Value of your cell is not empty")
+
+def copyColumn(fromColumn, startCell):
+    #val = worksheet.acell(startCell).value
+    valX= worksheet.acell(startCell).row
+    valY=worksheet.acell(startCell).col
+    if worksheet.acell(startCell).value == None:
+        for i in fromColumn:
+            worksheet.update_cell(valX,valY,i)
+            valX=valX+1
+    else:
+        print("Value of your cell is not empty")
+
+#def copyHead(rangeOfHead):
 
 prohod(column)
+#copyColumn(column,"H2")
+#copyString(stringSheet,"I2")
