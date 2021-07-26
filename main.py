@@ -2,8 +2,10 @@ import gspread
 import datetime
 import re
 gp = gspread.service_account(filename='./auth.json')
-spreadsheet = gp.open('TestParsing')
-worksheetRed = spreadsheet.get_worksheet(1)
+spreadsheet = gp.open('TestParseMyProg')
+worksheetRed = spreadsheet.worksheet("красные")
+worksheetYellow = spreadsheet.worksheet("желтые")
+worksheetDone = spreadsheet.worksheet("выполненные")
 worksheet = spreadsheet.get_worksheet(0)
 column = worksheet.col_values(4)
 stringSheet = worksheet.row_values(11)
@@ -87,6 +89,7 @@ def prohod(dataColumn):
             print(cell)
             if validDate(cell):
                 print("Work done")
+
             else:
                 print("No date")
                 if isItLate(i):
@@ -144,15 +147,29 @@ def copyHeadGeneral():
 def copyHeadCalenar():
     head = []
     b = worksheet.col_values(2)
+    j= 0
     for i in b:
+        j = j+1
         if re.search(r'Кален\w{6}',i):
-            head.append(i-1)
+            head.append(j-2)
             head.append (i)
-            head.append(i+1)
+            head.append(j+1)
+    return head
+def copyHeadOper():
+    head = []
+    b = worksheet.col_values(2)
+    j=0
+    for i in b:
+        j = j + 1
+        if re.search(r'Опера\w{6}', i):
+            head.append(j - 2)
+            head.append(i)
+            head.append(j + 1)
     return head
 def findEnd():
     c = worksheet.col_values(3)
     length = len(c)
+    print("длина таблицы: " + str(length))
     End = []
     j = 0
     print(c)
@@ -160,23 +177,30 @@ def findEnd():
          j = j + 1
          if i == '':
              test = c[j-1]+c[j]+c[j+1]
+             print(test)
              if match(test):
-                 return 'B'+str(j+2)
-             print("Test string: "+test)
-             if j == length-1:
-                 return "C"+str(length)
+                 End.append('B'+str(j+1))
+             #print("Test string: "+test)
+             if j == length - 2:
+                 print(End)
+                 return End
+
 
 def match(string):
-    #find = re.search('r\s{3}',string)
-    if string =='   ':
+    if string =='':
         print('Space finded')
         return True
     else:
         return False
 
+def updateDone(string):
+    worksheetDone.update('B2:F8',string)
 
 #prohod(column)
 #copyColumn(column,"H2")
-#copyString(stringSheet,"I2")
+#end = findEnd()
+#end= match("   ")
+#print(end)
 
-#print(find)
+general = copyHeadOper()
+print(general)
