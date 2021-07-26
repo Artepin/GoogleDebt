@@ -159,33 +159,24 @@ def findEnd():
     for i in c:
          j = j + 1
          if i == '':
-             test = c[j-1]+' '+c[j]+' '+c[j+1]
-             match(test)
+             test = c[j-1]+c[j]+c[j+1]
+             if match(test):
+                 return 'B'+str(j+2)
              print("Test string: "+test)
              if j == length-1:
+                 return "C"+str(length)
 
 def match(string):
     #find = re.search('r\s{3}',string)
-    test = '   '
-    if string ==test:
+    if string =='   ':
         print('Space finded')
         return True
     else:
         return False
 
 
-
-
-
-
-
-
-
-
-
-
 #prohod(column)
 #copyColumn(column,"H2")
 #copyString(stringSheet,"I2")
-find = findEnd()
+
 #print(find)
