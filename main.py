@@ -119,8 +119,73 @@ def copyColumn(fromColumn, startCell):
     else:
         print("Value of your cell is not empty")
 
-#def copyHead(rangeOfHead):
 
-prohod(column)
+def listOfSheets():
+    getList = spreadsheet.worksheets()
+    sheets = []
+    for i in getList:
+        if findWorsheet(i):
+            sheets.append(i)
+    return sheets
+
+
+def findWorsheet(name):
+    sheet = re.search(r'\d{4}', name)
+    if sheet:
+        return True
+    else:
+        return False
+
+def copyHeadGeneral():
+    Head = []
+    for i in range(7):
+        Head[i] = worksheet.row_values(i+1)
+    return Head
+def copyHeadCalenar():
+    head = []
+    b = worksheet.col_values(2)
+    for i in b:
+        if re.search(r'Кален\w{6}',i):
+            head.append(i-1)
+            head.append (i)
+            head.append(i+1)
+    return head
+def findEnd():
+    c = worksheet.col_values(3)
+    length = len(c)
+    End = []
+    j = 0
+    print(c)
+    for i in c:
+         j = j + 1
+         if i == '':
+             test = c[j-1]+' '+c[j]+' '+c[j+1]
+             match(test)
+             print("Test string: "+test)
+             if j == length-1:
+
+def match(string):
+    #find = re.search('r\s{3}',string)
+    test = '   '
+    if string ==test:
+        print('Space finded')
+        return True
+    else:
+        return False
+
+
+
+
+
+
+
+
+
+
+
+
+#prohod(column)
 #copyColumn(column,"H2")
 #copyString(stringSheet,"I2")
+find = findEnd()
+#print(find)
