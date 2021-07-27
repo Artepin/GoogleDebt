@@ -7,7 +7,7 @@ worksheetRed = spreadsheet.worksheet("красные")
 worksheetYellow = spreadsheet.worksheet("желтые")
 worksheetDone = spreadsheet.worksheet("выполненные")
 worksheet = spreadsheet.get_worksheet(0)
-column = worksheet.col_values(4)
+column = worksheet.col_values(5)
 stringSheet = worksheet.row_values(11)
 
 def dateTransform(data):
@@ -79,6 +79,7 @@ def isItLate(date):
 
 def prohod(dataColumn):
     j=0
+    k=0
     for i in dataColumn:
         j = j+1
         match = validDate(i)
@@ -88,8 +89,16 @@ def prohod(dataColumn):
             cell = worksheet.acell(cellCoord).value
             print(cell)
             if validDate(cell):
+                k=k+1
                 print("Work done")
-
+                stringForCopy= worksheet.row_values(j)
+                h=0
+                for i in stringForCopy:
+                    if i =='':
+                        h=h+1
+                        stringForCopy[h-1]=' '
+                print(stringForCopy)
+                updateDoneString(stringForCopy,k)
             else:
                 print("No date")
                 if isItLate(i):
@@ -166,6 +175,12 @@ def copyHeadOper():
             head.append(i)
             head.append(j + 1)
     return head
+
+def findWidth():
+    find = worksheet.row_values(10)
+    length=len(find)-1
+    return length
+
 def findEnd():
     c = worksheet.col_values(3)
     length = len(c)
@@ -185,7 +200,6 @@ def findEnd():
                  print(End)
                  return End
 
-
 def match(string):
     if string =='':
         print('Space finded')
@@ -193,14 +207,26 @@ def match(string):
     else:
         return False
 
-def updateDone(string):
-    worksheetDone.update('B2:F8',string)
+
+
+def updateDoneString(string, idRaw):
+    worksheetDone.update('B'+str(idRaw)+':F'+str(idRaw)+'',string)
+
+def updateYellowString(string, idRaw):
+    worksheetYellow.update('B'+str(idRaw)+':F'+str(idRaw)+'',string)
+
+def updateRedString(string, idRaw):
+    worksheetRed.update('B'+str(idRaw)+':F'+str(idRaw)+'',string)
+
+def updateDone():
+    columnStart = worksheet.col_values(2)
+    #for i in columnStart:
 
 #prohod(column)
 #copyColumn(column,"H2")
 #end = findEnd()
 #end= match("   ")
 #print(end)
-
-general = copyHeadOper()
-print(general)
+#general = copyHeadOper()
+string = ' ','123','456','789','890'
+updateDoneString(string,1)
