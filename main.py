@@ -89,18 +89,6 @@ def copyString(fromString, startCell):
     else:
         print("Value of your cell is not empty")
 
-def copyColumn(fromColumn, startCell):
-    #val = worksheet.acell(startCell).value
-    valX= worksheet.acell(startCell).row
-    valY=worksheet.acell(startCell).col
-    if worksheet.acell(startCell).value == None:
-        for i in fromColumn:
-            worksheet.update_cell(valX,valY,i)
-            valX=valX+1
-    else:
-        print("Value of your cell is not empty")
-
-
 def listOfSheets():
     getList = spreadsheet.worksheets()
     sheets = []
@@ -125,10 +113,16 @@ def copyHeadGeneral():
         j= j+1
         search = re.search(r'Генераль\w{3}',i)
         if search:
-            for k in range(0,j+3):
-                Head.append(worksheet.row_values(k+1))
+            Head = copyRange(j+3)
             return Head
 
+def copyRange(a):
+    result = []
+    for i in range(1, a):
+        copyStr = worksheet.row_values(i)
+        print(copyStr)
+        result.append(copyStr)
+    return result
 def copyHeadCalenar():
     head = []
     b = worksheet.col_values(2)
@@ -241,6 +235,7 @@ def updateYellowString(string, idRaw):
 
 def updateRedString(string, idRaw):
     worksheetRed.update('A2:F'+str(idRaw+2),string)
+
 
 Head = copyHeadGeneral()
 print(Head)
