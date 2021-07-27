@@ -77,38 +77,7 @@ def isItLate(date):
         print("Yellow color")
         return False
 
-def prohod(dataColumn):
-    j=0
-    k=0
-    for i in dataColumn:
-        j = j+1
-        match = validDate(i)
-        if match:
-            print("Match true")
-            cellCoord = 'E'+str(j)
-            cell = worksheet.acell(cellCoord).value
-            print(cell)
-            if validDate(cell):
-                k=k+1
-                print("Work done")
-                stringForCopy= worksheet.row_values(j)
-                h=0
-                for i in stringForCopy:
-                    if i =='':
-                        h=h+1
-                        stringForCopy[h-1]=' '
-                print(stringForCopy)
-                updateDoneString(stringForCopy,k)
-            else:
-                print("No date")
-                if isItLate(i):
-                    changeOfColor(cellCoord,"red")
-                    print("changed red color on "+ cellCoord)
-                else:
-                    changeOfColor(cellCoord, "yellow")
-                    print("changed yellow color on "+ cellCoord)
-        else:
-            print("Match False")
+
 
 def copyString(fromString, startCell):
     valX = worksheet.acell(startCell).row
@@ -150,9 +119,16 @@ def findWorsheet(name):
 
 def copyHeadGeneral():
     Head = []
-    for i in range(7):
-        Head[i] = worksheet.row_values(i+1)
-    return Head
+    b= worksheet.col_values(2)
+    j=0
+    for i in b:
+        j= j+1
+        search = re.search(r'Генераль\w{3}',i)
+        if search:
+            for k in range(0,j+3):
+                Head.append(worksheet.row_values(k+1))
+            return Head
+
 def copyHeadCalenar():
     head = []
     b = worksheet.col_values(2)
@@ -165,6 +141,7 @@ def copyHeadCalenar():
             head.append(j+1)
     return head
 def copyHeadOper():
+    '''
     head = []
     b = worksheet.col_values(2)
     j=0
@@ -175,6 +152,7 @@ def copyHeadOper():
             head.append(i)
             head.append(j + 1)
     return head
+    '''
 
 def findWidth():
     find = worksheet.row_values(10)
@@ -200,6 +178,7 @@ def findEnd():
                  print(End)
                  return End
 
+
 def match(string):
     if string =='':
         print('Space finded')
@@ -207,28 +186,71 @@ def match(string):
     else:
         return False
 
+def prohod():
+    j=0
+    d=0
+    r=0
+    y=0
+    sendDone = []
+    sendRed = []
+    sendYellow = []
+    planData= worksheet.col_values(5)
+    factData = worksheet.col_values(6)
+    for i in planData:
+        j = j+1
+        match = validDate(i)
+        if match:
+            print("Match true")
+            #cellCoord = 'E'+str(j)
+            #cell = worksheet.acell(cellCoord).value
+            cell = factData[j]
+            print(cell)
 
+            if validDate(cell):
+                d=d+1
+                print("Work done")
+                copyString= worksheet.row_values(j)
+                sendDone.append(copyString)
+
+            else:
+                print("No date")
+                if isItLate(i):
+                    r=r+1
+                    print("changed red color on E"+ str(j))
+                    copyString = worksheet.row_values(j)
+                    sendRed.append(copyString)
+                else:
+                    y=y+1
+                    print("changed yellow color on E"+ str(j))
+                    copyString = worksheet.row_values(j)
+                    sendYellow.append(copyString)
+        else:
+            print("Match False")
+    print(sendDone)
+    print(len(sendDone))
+    k2 = len(sendDone)
+    updateDoneString(sendDone, d)
+    updateRedString(sendRed, r)
+    updateYellowString(sendYellow, y)
 
 def updateDoneString(string, idRaw):
-    worksheetDone.update('B'+str(idRaw)+':F'+str(idRaw),string)
+    worksheetDone.update('A2:F'+str(idRaw+2),string)
 
 def updateYellowString(string, idRaw):
-    worksheetYellow.update('B'+str(idRaw)+':F'+str(idRaw)+'',string)
+    worksheetYellow.update('A2:F'+str(idRaw+2),string)
 
 def updateRedString(string, idRaw):
-    worksheetRed.update('B'+str(idRaw)+':F'+str(idRaw)+'',string)
+    worksheetRed.update('A2:F'+str(idRaw+2),string)
 
-def updateDone():
-    columnStart = worksheet.col_values(2)
-    #for i in columnStart:
-
-#prohod(column)
+Head = copyHeadGeneral()
+print(Head)
 #copyColumn(column,"H2")
 #end = findEnd()
 #end= match("   ")
 #print(end)
 #general = copyHeadOper()
-a=[]
-string = ['123','123','456','789','890']
-a.append(string)
-updateDoneString(a,1)
+#a=[]
+#string = [' ','123','456','789','890']
+#a.append(string)
+#updateDoneString(a,1)
+#print(a)

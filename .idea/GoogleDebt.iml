@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venvhomepc" />
       <excludeFolder url="file://$MODULE_DIR$/venvwork" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8 (base)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (GoogleDebt)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
