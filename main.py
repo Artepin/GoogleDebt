@@ -210,7 +210,7 @@ def match(string):
 
 
 def updateDoneString(string, idRaw):
-    worksheetDone.update('B'+str(idRaw)+':F'+str(idRaw)+'',string)
+    worksheetDone.update('B'+str(idRaw)+':F'+str(idRaw),string)
 
 def updateYellowString(string, idRaw):
     worksheetYellow.update('B'+str(idRaw)+':F'+str(idRaw)+'',string)
@@ -228,5 +228,7 @@ def updateDone():
 #end= match("   ")
 #print(end)
 #general = copyHeadOper()
-string = ' ','123','456','789','890'
-updateDoneString(string,1)
+a=[]
+string = ['123','123','456','789','890']
+a.append(string)
+updateDoneString(a,1)
