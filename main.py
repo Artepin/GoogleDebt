@@ -105,6 +105,14 @@ def findWorsheet(name):
     else:
         return False
 
+def copyRange(a,b):
+    result = []
+    for i in range(a, b+1):
+        copyStr = worksheet.row_values(i)
+        print(copyStr)
+        result.append(copyStr)
+    return result
+
 def copyHeadGeneral():
     Head = []
     b= worksheet.col_values(2)
@@ -113,40 +121,29 @@ def copyHeadGeneral():
         j= j+1
         search = re.search(r'Генераль\w{3}',i)
         if search:
-            Head = copyRange(j+3)
+            Head = copyRange(2,j+3)
             return Head
 
-def copyRange(a):
-    result = []
-    for i in range(1, a):
-        copyStr = worksheet.row_values(i)
-        print(copyStr)
-        result.append(copyStr)
-    return result
 def copyHeadCalenar():
-    head = []
+    Head = []
     b = worksheet.col_values(2)
-    j= 0
-    for i in b:
-        j = j+1
-        if re.search(r'Кален\w{6}',i):
-            head.append(j-2)
-            head.append (i)
-            head.append(j+1)
-    return head
-def copyHeadOper():
-    '''
-    head = []
-    b = worksheet.col_values(2)
-    j=0
+    j = 0
     for i in b:
         j = j + 1
-        if re.search(r'Опера\w{6}', i):
-            head.append(j - 2)
-            head.append(i)
-            head.append(j + 1)
-    return head
-    '''
+        search = re.search(r'Кален\w{6}',i)
+        if search:
+            Head = copyRange(j-1, j + 1)
+            return Head
+def copyHeadOper():
+    Head = []
+    b = worksheet.col_values(2)
+    j = 0
+    for i in b:
+        j = j + 1
+        search = re.search(r'Опера\w{6}', i)
+        if search:
+            Head = copyRange(j - 1, j + 2)
+            return Head
 
 def findWidth():
     find = worksheet.row_values(10)
@@ -236,16 +233,8 @@ def updateYellowString(string, idRaw):
 def updateRedString(string, idRaw):
     worksheetRed.update('A2:F'+str(idRaw+2),string)
 
-
 Head = copyHeadGeneral()
-print(Head)
-#copyColumn(column,"H2")
-#end = findEnd()
-#end= match("   ")
-#print(end)
-#general = copyHeadOper()
-#a=[]
-#string = [' ','123','456','789','890']
-#a.append(string)
-#updateDoneString(a,1)
-#print(a)
+print("---------------- ")
+Calendar = copyHeadCalenar()
+print("---------------- ")
+Operativ = copyHeadOper()
