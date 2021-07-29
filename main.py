@@ -158,34 +158,6 @@ def copyHeadOper():
             Head = copyRange(j - 1, j + 2)
             return Head
 
-
-'''
-def findWidth():
-    find = worksheet.row_values(10)
-    length=len(find)-1
-    return length
-
-def findEnd():
-    c = worksheet.col_values(3)
-    length = len(c)
-    print("длина таблицы: " + str(length))
-    End = []
-    j = 0
-    print(c)
-    for i in c:
-         j = j + 1
-         if i == '':
-             test = c[j-1]+c[j]+c[j+1]
-             print(test)
-             if match(test):
-                 End.append('B'+str(j+1))
-             #print("Test string: "+test)
-             if j == length - 2:
-                 print(End)
-                 return End
-
-'''
-
 def match(string):
     if string =='':
         print('Space finded')
@@ -200,6 +172,39 @@ def prepareTable():
         j=j+1
         if i == '':
             worksheet.update_cell(j,4, ' ')
+def copyTable():
+    print('Список стартовых ячеек получен:')
+    startList= getStart()
+    print('Список конечных ячеек получен:')
+    endList = getEnd()
+    print('Попытка копирования таблицы Генеральный план: ')
+    genTable = worksheet.get('B'+startList[1]+':F'+endList[1])
+    print(genTable)
+    calendarTable = worksheet.get('B'+startList[2]+':F'+endList[2])
+    print(calendarTable)
+    operTable = worksheet.get('B'+startList[3]+':F'+endList[2])
+    print(operTable)
+
+def prohod2():
+    doneTable =[]
+    redTable = []
+    yellowTable = []
+
+    j=0
+    for i in table:
+        j=j+1
+        if len(i)>=4:
+            if validDate(i[4]):
+                if i[5]!='':
+                    doneTable.append(i)
+                else:
+                    if isItLate(i[4]):
+                        redTable.append(i)
+                    else:
+                        yellowTable.append(i)
+
+
+
 
 def prohod(worksheet):
     j=0
@@ -257,46 +262,6 @@ def updateYellowString(string, idRaw):
 def updateRedString(string, idRaw):
     worksheetRed.update('A2:F'+str(idRaw+2),string)
 
-def getStartGen():
-    b = worksheet.col_values(2)
-    j=0
-    for i in b:
-        j = j + 1
-        search = re.search(r'Генераль\w{3}', i)
-        if search:
-            print('B' + str(j-3))
-            return str(j-3)
-
-def getEndGen():
-    c = worksheet.col_values(3)
-    j = 0
-    for i in c:
-        j =j+1
-        if i =='':
-            if c[j+1]=='':
-                if c[j-1]=='':
-                    print('F'+str(j-1))
-                    return str(j-1)
-
-
-def getCalendarStart():
-    b = worksheet.col_values(2)
-    j = 0
-    start = ''
-    for i in b:
-        j = j + 1
-        search = re.search(r'Кален\w{6}', i)
-        if search:
-            print('B' + str(j))
-            return str(j)
-
-def getCalendarEnd():
-    list = getListEnds()
-    #print(list)
-    a = list[1]
-    return a
-
-
 def getStart():
     b = worksheet.col_values(2)
     j = 0
@@ -308,42 +273,38 @@ def getStart():
         searchOper = re.search(r'Опер\w{6}', i)
         if search:
             print('B' + str(j - 3))
-            start.append(j - 3)
+            start.append(str(j - 3))
         if searchCalendar:
             print('B' + str(j))
-            start.append(j)
+            start.append(str(j))
         if searchOper:
-            start.append(j)
+            start.append(str(j))
             print('B' + str(j))
 
     print(start)
     return start
 
-def getListEnds():
+def getEnd():
     c = worksheet.col_values(3)
-    #print(c)
-    #print(len(c))
     j = 0
     score = 0
     list = []
 
     for i in c:
          j = j + 1
-         #if score == 3:
-          #   return list
          if i == '':
 
              if c[j - 2] == '':
                  if c[j - 3] == '':
-                     #print(str(j), c[j-1])
+                     print(str(j), c[j-1])
                      score = score + 1
                      list.append(str(j-3))
     list.append(str(j+1))
-    #print(list)
+    print(list)
     return list
 
 def getTable(inB,inF):
     gen = worksheet.get('B'+inB+':F'+inF)
     return gen
 
-getStart()
+copyTable()
