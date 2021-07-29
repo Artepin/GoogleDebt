@@ -1,14 +1,42 @@
 import gspread
 import datetime
 import re
+
 gp = gspread.service_account(filename='./auth.json')
 spreadsheet = gp.open('TestParseMyProg')
 worksheetRed = spreadsheet.worksheet("красные")
 worksheetYellow = spreadsheet.worksheet("желтые")
 worksheetDone = spreadsheet.worksheet("выполненные")
-worksheet = spreadsheet.get_worksheet(0)
+worksheet = spreadsheet.worksheet('2747')
 column = worksheet.col_values(5)
-stringSheet = worksheet.row_values(11)
+#stringSheet = worksheet.row_values(11)
+
+def findWorsheet(name):
+    sheet = re.search(r'\d{4}', name)
+    if sheet:
+        return True
+    else:
+        return False
+
+
+def listOfSheets():
+    getList = spreadsheet.worksheets()
+    sheets = []
+    print(getList)
+    for i in getList:
+        if findWorsheet(i):
+            sheets.append(i)
+    testTwoTable(sheets)
+    return sheets
+
+def testTwoTable(sheets):
+    listOfSheets = []
+    listOfSheets = sheets
+    for i in listOfSheets:
+        testWorksheet = spreadsheet.get_worksheet(i)
+        prohod(testWorksheet)
+
+
 
 def dateTransform(data):
     if data !='None':
@@ -89,22 +117,6 @@ def copyString(fromString, startCell):
     else:
         print("Value of your cell is not empty")
 
-def listOfSheets():
-    getList = spreadsheet.worksheets()
-    sheets = []
-    for i in getList:
-        if findWorsheet(i):
-            sheets.append(i)
-    return sheets
-
-
-def findWorsheet(name):
-    sheet = re.search(r'\d{4}', name)
-    if sheet:
-        return True
-    else:
-        return False
-
 def copyRange(a,b):
     result = []
     for i in range(a, b+1):
@@ -122,7 +134,8 @@ def copyHeadGeneral():
         search = re.search(r'Генераль\w{3}',i)
         if search:
             Head = copyRange(2,j+3)
-            return Head
+            return Head, j+3
+
 
 def copyHeadCalenar():
     Head = []
@@ -145,6 +158,8 @@ def copyHeadOper():
             Head = copyRange(j - 1, j + 2)
             return Head
 
+
+'''
 def findWidth():
     find = worksheet.row_values(10)
     length=len(find)-1
@@ -169,6 +184,7 @@ def findEnd():
                  print(End)
                  return End
 
+'''
 
 def match(string):
     if string =='':
@@ -177,7 +193,15 @@ def match(string):
     else:
         return False
 
-def prohod():
+def prepareTable():
+    b = worksheet.col_values(3)
+    j = 0
+    for i in b:
+        j=j+1
+        if i == '':
+            worksheet.update_cell(j,4, ' ')
+
+def prohod(worksheet):
     j=0
     d=0
     r=0
@@ -192,8 +216,7 @@ def prohod():
         match = validDate(i)
         if match:
             print("Match true")
-            #cellCoord = 'E'+str(j)
-            #cell = worksheet.acell(cellCoord).value
+
             cell = factData[j]
             print(cell)
 
@@ -220,6 +243,7 @@ def prohod():
     print(sendDone)
     print(len(sendDone))
     k2 = len(sendDone)
+    prepareTable()
     updateDoneString(sendDone, d)
     updateRedString(sendRed, r)
     updateYellowString(sendYellow, y)
@@ -233,8 +257,93 @@ def updateYellowString(string, idRaw):
 def updateRedString(string, idRaw):
     worksheetRed.update('A2:F'+str(idRaw+2),string)
 
-Head = copyHeadGeneral()
-print("---------------- ")
-Calendar = copyHeadCalenar()
-print("---------------- ")
-Operativ = copyHeadOper()
+def getStartGen():
+    b = worksheet.col_values(2)
+    j=0
+    for i in b:
+        j = j + 1
+        search = re.search(r'Генераль\w{3}', i)
+        if search:
+            print('B' + str(j-3))
+            return str(j-3)
+
+def getEndGen():
+    c = worksheet.col_values(3)
+    j = 0
+    for i in c:
+        j =j+1
+        if i =='':
+            if c[j+1]=='':
+                if c[j-1]=='':
+                    print('F'+str(j-1))
+                    return str(j-1)
+
+
+def getCalendarStart():
+    b = worksheet.col_values(2)
+    j = 0
+    start = ''
+    for i in b:
+        j = j + 1
+        search = re.search(r'Кален\w{6}', i)
+        if search:
+            print('B' + str(j))
+            return str(j)
+
+def getCalendarEnd():
+    list = getListEnds()
+    #print(list)
+    a = list[1]
+    return a
+
+
+def getStart():
+    b = worksheet.col_values(2)
+    j = 0
+    start = []
+    for i in b:
+        j = j + 1
+        search = re.search(r'Генераль\w{3}', i)
+        searchCalendar = re.search(r'Кален\w{6}', i)
+        searchOper = re.search(r'Опер\w{6}', i)
+        if search:
+            print('B' + str(j - 3))
+            start.append(j - 3)
+        if searchCalendar:
+            print('B' + str(j))
+            start.append(j)
+        if searchOper:
+            start.append(j)
+            print('B' + str(j))
+
+    print(start)
+    return start
+
+def getListEnds():
+    c = worksheet.col_values(3)
+    #print(c)
+    #print(len(c))
+    j = 0
+    score = 0
+    list = []
+
+    for i in c:
+         j = j + 1
+         #if score == 3:
+          #   return list
+         if i == '':
+
+             if c[j - 2] == '':
+                 if c[j - 3] == '':
+                     #print(str(j), c[j-1])
+                     score = score + 1
+                     list.append(str(j-3))
+    list.append(str(j+1))
+    #print(list)
+    return list
+
+def getTable(inB,inF):
+    gen = worksheet.get('B'+inB+':F'+inF)
+    return gen
+
+getStart()
