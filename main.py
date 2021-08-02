@@ -90,7 +90,7 @@ def prohod(worksheet):
 import gspread
 import datetime
 import re
-import gspread_formatting
+import gspread_formatting as gsf
 from googleapiclient import discovery
 gp = gspread.service_account(filename='./auth.json')
 spreadsheet = gp.open('TestParseMyProg')
@@ -329,8 +329,8 @@ def getStart(worksheet):
         searchCalendar = re.search(r'Кален\w{6}', i)
         searchOper = re.search(r'Опер\w{6}', i)
         if search:
-            print('B' + str(j - 3))
-            start.append(str(j - 6))
+            print('B' + str(j - 5))
+            start.append(str(j - 5))
         if searchCalendar:
             print('B' + str(j))
             start.append(str(j))
@@ -360,9 +360,6 @@ def getEnd(worksheet):
     print(list)
     return list
 
-def getTable(inB,inF):
-    gen = worksheet.get('B'+inB+':F'+inF)
-    return gen
 def start():
     worksheet = spreadsheet.worksheet('2747')
     startList = getStart(worksheet)
@@ -427,12 +424,21 @@ def start2(list):
             score = prohod(operTable, score)
 
 
-#start2(list)
-worksheet = spreadsheet.worksheet('2747')
-fmt = gspread_formatting.cellFormat(
-    textFormat=gspread_formatting.textFormat(bold=True)
+start2(list)
+'''worksheet = spreadsheet.worksheet('2747')
+fmt = gsf.cellFormat(
+    textFormat=gsf.textFormat(bold=True)
     )
-gspread_formatting.format_cell_range(worksheet,'B2',fmt)
-test = gspread_formatting.get_effective_format(worksheet,'B2')
-gspread_formatting.format_cell_range(worksheetRed,'B2',test)
-print(test)
+gsf.format_cell_range(worksheet,'B2',fmt)'''
+def paintTable():
+    worksheet = spreadsheet.worksheet('2747')
+    test = gsf.get_effective_format(worksheet, 'B2:D4')
+    gsf.format_cell_range(worksheetRed, 'B2:D4', test)
+    #paintHeadGen= gsf.get_effective_format(worksheet,'B7:F7')
+    #gsf.format_cell_range(worksheetRed,'B7:F7',paintHeadGen)
+    paintHeadGen2 = gsf.get_effective_format(worksheet, 'B8:F10')
+    gsf.format_cell_range(worksheetRed,'B8:F10',paintHeadGen2)
+    paintGen =  gsf.get_effective_format(worksheet,'B11:F12')
+    gsf.format_cell_range(worksheetRed, 'B11:F12',paintGen)
+
+paintTable()
