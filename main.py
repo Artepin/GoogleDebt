@@ -1,97 +1,8 @@
-'''
-def copyHeadCalenar():
-    Head = []
-    b = worksheet.col_values(2)
-    j = 0
-    for i in b:
-        j = j + 1
-        search = re.search(r'Кален\w{6}',i)
-        if search:
-            Head = copyRange(j-1, j + 1)
-            return Head
-def copyHeadOper():
-    Head = []
-    b = worksheet.col_values(2)
-    j = 0
-    for i in b:
-        j = j + 1
-        search = re.search(r'Опера\w{6}', i)
-        if search:
-            Head = copyRange(j - 1, j + 2)
-            return Head
-
-def match(string):
-    if string =='':
-        print('Space finded')
-        return True
-    else:
-        return False
-
-def prepareTable():
-    b = worksheet.col_values(3)
-    j = 0
-    for i in b:
-        j=j+1
-        if i == '':
-            worksheet.update_cell(j,4, ' ')
-
-'''
-
-
-'''
-def prohod(worksheet):
-    j=0
-    d=0
-    r=0
-    y=0
-    sendDone = []
-    sendRed = []
-    sendYellow = []
-    planData= worksheet.col_values(5)
-    factData = worksheet.col_values(6)
-    for i in planData:
-        j = j+1
-        match = validDate(i)
-        if match:
-            print("Match true")
-
-            cell = factData[j]
-            print(cell)
-
-            if validDate(cell):
-                d=d+1
-                print("Work done")
-                copyString= worksheet.row_values(j)
-                sendDone.append(copyString)
-
-            else:
-                print("No date")
-                if isItLate(i):
-                    r=r+1
-                    print("changed red color on E"+ str(j))
-                    copyString = worksheet.row_values(j)
-                    sendRed.append(copyString)
-                else:
-                    y=y+1
-                    print("changed yellow color on E"+ str(j))
-                    copyString = worksheet.row_values(j)
-                    sendYellow.append(copyString)
-        else:
-            print("Match False")
-    print(sendDone)
-    print(len(sendDone))
-    k2 = len(sendDone)
-    prepareTable()
-    updateDoneString(sendDone, d)
-    updateRedString(sendRed, r)
-    updateYellowString(sendYellow, y)
-'''
 
 import gspread
 import datetime
 import re
 import gspread_formatting as gsf
-from googleapiclient import discovery
 gp = gspread.service_account(filename='./auth.json')
 spreadsheet = gp.open('TestParseMyProg')
 worksheetRed = spreadsheet.worksheet("красные")
@@ -214,7 +125,7 @@ def cutHead(table):
             if matchGen:
                 print('план найден в ячейке :B'+str(j-1))
                 print(i[0])
-                for k in range(j-5,j+3):
+                for k in range(j-6,j+3):
                     head.append(table[k])
                 return head
             matchCalendar = re.search(r'Кален\w{6}', i[0])
@@ -260,17 +171,17 @@ def prohodFirst(table):
     print('Отправляю таблицу выполненные:')
     print(sendTableDone)
     lengthTableDone = len(sendTableDone) + 2
-    worksheetDone.update('B3:F' + str(lengthTableDone), sendTableDone)
+    worksheetDone.update('B2:F' + str(lengthTableDone), sendTableDone)
     sendTableYellow = cutHead(table) + yellowTable
     print('Отправляю таблицу желтые:')
     print(sendTableYellow)
     lengthTableYellow = len(sendTableYellow) + 2
-    worksheetYellow.update('B3:F' + str(lengthTableYellow), sendTableYellow)
+    worksheetYellow.update('B2:F' + str(lengthTableYellow), sendTableYellow)
     sendTableRed = cutHead(table) + redTable
     print('Отправляю таблицу красные:')
     print(sendTableRed)
     lengthTableRed = len(sendTableRed) + 2
-    worksheetRed.update('B3:F' + str(lengthTableRed), sendTableRed)
+    worksheetRed.update('B2:F' + str(lengthTableRed), sendTableRed)
     listOfEnds = [lengthTableDone+1,lengthTableYellow+1,lengthTableRed+1]
     return listOfEnds
 
@@ -329,14 +240,14 @@ def getStart(worksheet):
         searchCalendar = re.search(r'Кален\w{6}', i)
         searchOper = re.search(r'Опер\w{6}', i)
         if search:
-            print('B' + str(j - 5))
-            start.append(str(j - 5))
+            print('B' + str(j - 6))
+            start.append(str(j - 6))
         if searchCalendar:
-            print('B' + str(j))
-            start.append(str(j))
+            print('B' + str(j-1))
+            start.append(str(j-1))
         if searchOper:
-            start.append(str(j))
-            print('B' + str(j))
+            start.append(str(j-1))
+            print('B' + str(j-1))
 
     print(start)
     return start
@@ -400,45 +311,71 @@ def start2(list):
     j =0
     for i in list:
         j=j+1
-        if j==1:
-            worksheet = spreadsheet.worksheet(i)
-            startList = getStart(worksheet)
-            endList = getEnd(worksheet)
-            genTable = worksheet.get('B' + startList[0] + ':F' + endList[0])
-            calendarTable = worksheet.get('B' + startList[1] + ':F' + endList[1])
-            operTable = worksheet.get('B' + startList[2] + ':F' + endList[2])
-            print(genTable)
+        worksheet = spreadsheet.worksheet(i)
+        startList = getStart(worksheet)
+        endList = getEnd(worksheet)
+        genTable = worksheet.get('B' + startList[0] + ':F' + endList[0])
+        calendarTable = worksheet.get('B' + startList[1] + ':F' + endList[1])
+        operTable = worksheet.get('B' + startList[2] + ':F' + endList[2])
+        print(genTable)
+        if j ==1:
             score = prohodFirst(genTable)
-            score = prohod(calendarTable, score)
-            score = prohod(operTable, score)
-        if j>1:
-            worksheet = spreadsheet.worksheet(i)
-            startList = getStart(worksheet)
-            endList = getEnd(worksheet)
-            genTable = worksheet.get('B' + startList[0] + ':F' + endList[0])
-            calendarTable = worksheet.get('B' + startList[1] + ':F' + endList[1])
-            operTable = worksheet.get('B' + startList[2] + ':F' + endList[2])
-            print(genTable)
-            score = prohod(genTable,score)
-            score = prohod(calendarTable, score)
-            score = prohod(operTable, score)
+        else:
+            score = prohod(genTable, score)
+        score = prohod(calendarTable, score)
+        score = prohod(operTable, score)
 
+#start2(list)
 
-start2(list)
-'''worksheet = spreadsheet.worksheet('2747')
-fmt = gsf.cellFormat(
-    textFormat=gsf.textFormat(bold=True)
-    )
-gsf.format_cell_range(worksheet,'B2',fmt)'''
 def paintTable():
     worksheet = spreadsheet.worksheet('2747')
     test = gsf.get_effective_format(worksheet, 'B2:D4')
     gsf.format_cell_range(worksheetRed, 'B2:D4', test)
-    #paintHeadGen= gsf.get_effective_format(worksheet,'B7:F7')
-    #gsf.format_cell_range(worksheetRed,'B7:F7',paintHeadGen)
+    paintHeadGen= gsf.get_effective_format(worksheet,'B7:F7')
+    gsf.format_cell_range(worksheetRed,'B7:F7',paintHeadGen)
     paintHeadGen2 = gsf.get_effective_format(worksheet, 'B8:F10')
     gsf.format_cell_range(worksheetRed,'B8:F10',paintHeadGen2)
     paintGen =  gsf.get_effective_format(worksheet,'B11:F12')
     gsf.format_cell_range(worksheetRed, 'B11:F12',paintGen)
 
-paintTable()
+def test():
+    worksheet = spreadsheet.worksheet('2747')
+    coordWork = getStart(worksheet)
+    for i in coordWork:
+        i = str(int(i)+1)
+    coordRed = getStart(worksheetRed)
+    for i in coordRed:
+        i = str(int(i)+1)
+    worksheet = spreadsheet.worksheet('2747')
+    test = gsf.get_effective_format(worksheet, 'B'+coordWork[0]+':D'+str(int(coordWork[0])+2))
+    gsf.format_cell_range(worksheetRed, 'B'+coordRed[0]+':D'+str(int(coordRed[0])+2)+'', test)
+    test2 = gsf.get_effective_format(worksheet, 'B8:F12')
+    gsf.format_cell_range(worksheetRed,'B8:F'+coordRed(1),test2)
+    test3 = gsf.get_effective_format(worksheet,'B24:F24')
+    gsf.get_effective_format(worksheetRed,coordRed(2))
+    getStart(worksheetRed)
+
+#test()
+def test2():
+    worksheet = spreadsheet.worksheet('2747')
+    coordWork = getStart(worksheet)
+    for i in coordWork:
+        i = str(int(i) + 1)
+    coordRed = getStart(worksheetRed)
+    for i in coordRed:
+        i = str(int(i) + 1)
+    j = 0
+    for i in coordWork:
+        j=j+1
+        if j//3==0:
+            oper = gsf.get_effective_format(worksheet, 'B' + coordWork[2] + ':D' +coordWork[2])
+            gsf.format_cell_range(worksheetRed, 'B' + coordRed[i] + ':D' + coordRed[i] + '', oper)
+            #oper2 = gsf.get_effective_format(worksheet, 'B' + str(int(coordWork[2])+1) + ':D' +coordWork[3])
+        else if j//2==0:
+            calendar =
+
+        else:
+
+    test = gsf.get_effective_format(worksheet, 'B' + coordWork[0] + ':D' + str(int(coordWork[0]) + 2))
+    gsf.format_cell_range(worksheetRed, 'B' + coordRed[0] + ':D' + str(int(coordRed[0]) + 2) + '', test)
+test2()
