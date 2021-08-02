@@ -90,6 +90,8 @@ def prohod(worksheet):
 import gspread
 import datetime
 import re
+import gspread_formatting
+from googleapiclient import discovery
 gp = gspread.service_account(filename='./auth.json')
 spreadsheet = gp.open('TestParseMyProg')
 worksheetRed = spreadsheet.worksheet("красные")
@@ -400,6 +402,7 @@ def start2(list):
     score = []
     j =0
     for i in list:
+        j=j+1
         if j==1:
             worksheet = spreadsheet.worksheet(i)
             startList = getStart(worksheet)
@@ -424,4 +427,12 @@ def start2(list):
             score = prohod(operTable, score)
 
 
-start2(list)
+#start2(list)
+worksheet = spreadsheet.worksheet('2747')
+fmt = gspread_formatting.cellFormat(
+    textFormat=gspread_formatting.textFormat(bold=True)
+    )
+gspread_formatting.format_cell_range(worksheet,'B2',fmt)
+test = gspread_formatting.get_effective_format(worksheet,'B2')
+gspread_formatting.format_cell_range(worksheetRed,'B2',test)
+print(test)
