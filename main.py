@@ -537,7 +537,7 @@ def testOPti(spreadsheet):
                               'B' + str(int(calendarDoneCoord[e]) + 5) + ':F' + str(int(operDoneCoord[e]) - 2),
                               genDataPaint)'''
 
-def table():
+def getTable():
     worksheet = spreadsheet.worksheet('2747')
     b = worksheet.col_values(2)
     j = 0
@@ -614,7 +614,7 @@ def cutHead(table):
             if matchGen:
                 print('план найден в ячейке :B'+str(j-1))
                 print(i[0])
-                for k in range(j-1,j+3):
+                for k in range(j-6,j+3):
                     head.append(table[k])
                 return head
             matchCalendar = re.search(r'Кален\w{6}', i[0])
@@ -627,6 +627,95 @@ def cutHead(table):
                 for k in range(j-1, j + 2):
                     head.append(table[k])
                 return head
+
+
+def parse():
+    table = getTable()
+    gen = cutGen(table)
+    headGen = cutHead(table)
+    calendar = cutCalendar(table)
+    headCalendar = cutHead(table)
+    oper = cutOPer(table)
+    headOper = cutHead(table)
+    doneTable1 = []
+    redTable1 = []
+    yellowTable1 = []
+    doneTable2 = []
+    redTable2 = []
+    yellowTable2 = []
+    doneTable3 = []
+    redTable3 = []
+    yellowTable3 = []
+
+    j = 0
+    for i in gen:
+        j = j + 1
+        if len(i) >= 4:
+            if validDate(i[3]):
+                a = i[4:]
+                if a != []:
+                    if validDate(i[4]):
+                        doneTable1.append(i)
+                else:
+                    if isItLate(i[3]):
+                        redTable1.append(i)
+                    else:
+                        yellowTable1.append(i)
+
+    redTableGen = headGen + redTable1
+    yellowTableGen = headGen + yellowTable1
+    doneTableGen = headGen + doneTable1
+
+    j=0
+    for i in calendar:
+        j = j + 1
+        if len(i) >= 4:
+            if validDate(i[3]):
+                a = i[4:]
+                if a != []:
+                    if validDate(i[4]):
+                        doneTable2.append(i)
+                else:
+                    if isItLate(i[3]):
+                        redTable2.append(i)
+                    else:
+                        yellowTable2.append(i)
+
+    redTableCalendar = headCalendar + redTable2
+    yellowTableCalendar = headCalendar + yellowTable2
+    doneTableCalendar = headCalendar + doneTable2
+
+    j = 0
+
+    for i in oper:
+        j = j + 1
+        if len(i) >= 4:
+            if validDate(i[3]):
+                a = i[4:]
+                if a != []:
+                    if validDate(i[4]):
+                        doneTable3.append(i)
+                else:
+                    if isItLate(i[3]):
+                        redTable3.append(i)
+                    else:
+                        yellowTable3.append(i)
+    redTableOper = headOper+ redTable3
+    yellowTableOper = headOper+yellowTable3
+    doneTableOper = headOper+doneTable3
+
+    redTable = redTableGen + redTableCalendar + redTableOper
+    yellowTable = yellowTableGen + yellowTableCalendar +yellowTableOper
+    doneTable = doneTableGen + doneTableCalendar + doneTableOper
+    print('Красная таблица:')
+    for i in redTable:
+        print(i)
+    print('Желтая таблица')
+    for i in yellowTable:
+        print(i)
+    print('Выполненные таблица')
+    for i in doneTable:
+        print(i)
 
 def testPaint():
     list = ['2747','2707','2774','2776','2707-01']
@@ -646,5 +735,4 @@ def testPaint():
 #test = worksheet.batch_get(['B2:F10', 'B11'])
 #print(test)
 
-table = table()
-cutGen(table)
+parse()
