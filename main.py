@@ -37,7 +37,6 @@ def listOfSheets():
 def dateTransform(data):
     if data !='None':
         if data!= '-':
-
             print(data)
             if len(data)<10:
                 testDate = datetime.strptime(data, '%d.%m.%y')
@@ -84,11 +83,11 @@ def isItLate(data):
     dateNow = date.today()
     datePlan = dateTransform(data)
     if datePlan ==None:
-        print(data)
+        #print(data)
         datePlan = datetime.strptime(data, '%d.%m.%y')
-    razn = dateNow - datePlan.date()
+    razn = datePlan.date() - dateNow
     day = razn.days
-    if int(day) > 14:
+    if int(day) <= 0:
         return True
     else:
         return False
@@ -276,7 +275,7 @@ def paintRed(list):
 
 def testOPti(spreadsheet):
     gsfb = gsf.batch_updater(spreadsheet)
-    worksheet = spreadsheet.worksheet('2747')
+    worksheet = spreadsheet.worksheet('шаблоны')
     genZakazCoord, calendarZakazCoord, operZakazCoord = test3(worksheet)
     genRedCoord, calendarRedCoord, operRedCoord = test3(worksheetRed)
     genYellowCoord, calendarYellowCoord, operYellowCoord = test3(worksheetYellow)
@@ -286,14 +285,17 @@ def testOPti(spreadsheet):
         j = j + 1
         zakaz = gsf.get_effective_format(worksheet, 'C' + str(int(genZakazCoord[0]) - 4))
         gsfb.format_cell_range(worksheetRed, 'B' + str(int(genRedCoord[j]) - 5) + ':D' + str(int(genRedCoord[j]) - 3),zakaz)
-        print('Координаты № заказа: B' + str(int(genRedCoord[j]) - 5) + ':D' + str(int(genRedCoord[j]) - 3))
+        print('Крашу шапку генерального плана (заказ) красной таблицы: B' + str(int(genRedCoord[j]) - 5) + ':D' + str(int(genRedCoord[j]) - 3))
         genHeadPaint = gsf.get_effective_format(worksheet, 'B' + genZakazCoord[0] + ':F' + genZakazCoord[0])
-        print('Координаты Шапки ген заказа: B' + genZakazCoord[0] + ':F' + genZakazCoord[0])
         gsfb.format_cell_range(worksheetRed, 'B' + genRedCoord[j] + ':F' + genRedCoord[j], genHeadPaint)
+        print('Крашу шапку генерального плана 1 красной таблицы: B' + genRedCoord[j] + ':F' + genRedCoord[j])
         genHeadPaint2 = gsf.get_effective_format(worksheet, 'B' + str(int(genZakazCoord[0])+1) + ':F' + str(int(genZakazCoord[0])+1))
         gsfb.format_cell_range(worksheetRed, 'B' + str(int(genRedCoord[j])+1)  + ':F' + str(int(genRedCoord[j])+3), genHeadPaint2)
+        print('Крашу шапку генерального плана 2 красной таблицы: B' + str(int(genRedCoord[j])+1) + ':F' + str(int(genRedCoord[j])+3))
         genDataPaint = gsf.get_effective_format(worksheet, 'B'+str(int(genZakazCoord[0])+4)+':F'+str(int(genZakazCoord[0])+4))
+        print(str(int(genRedCoord[j])+4)+str(int(calendarRedCoord[j])-2))
         gsfb.format_cell_range(worksheetRed,'B' + str(int(genRedCoord[j])+4) + ':F' + str(int(calendarRedCoord[j]) - 2),genDataPaint)
+    time.sleep(20)
 
     k=-1
     for i in calendarRedCoord:
@@ -303,9 +305,10 @@ def testOPti(spreadsheet):
         gsfb.format_cell_range(worksheetRed, 'B' + calendarRedCoord[k] + ':F' + calendarRedCoord[k], genHeadPaint)
         calendarHead2Paint = gsf.get_effective_format(worksheet,'B'+str(int(calendarZakazCoord[0])+2)+':F'+str(int(calendarZakazCoord[0])+4))
         print('Координаты шапки Календарного плана:'+'B'+str(int(calendarZakazCoord[0])+2)+':F'+str(int(calendarZakazCoord[0])+4))
-        gsfb.format_cell_range(worksheetRed, 'B'+str(int(calendarRedCoord[k])+2)+':F'+str(int(calendarRedCoord[k])+4),calendarHead2Paint)
-        genDataPaint = gsf.get_effective_format(worksheet, 'B' + str(int(calendarZakazCoord[0]) + 5) + ':F' + str(int(operZakazCoord[0]) - 3))
-        gsfb.format_cell_range(worksheetRed, 'B' + str(int(calendarRedCoord[k]) + 5) + ':F' + str(int(operRedCoord[k]) - 3),genDataPaint)
+        gsfb.format_cell_range(worksheetRed, 'B'+str(int(calendarRedCoord[k])+1)+':F'+str(int(calendarRedCoord[k])+3),calendarHead2Paint)
+        genDataPaint = gsf.get_effective_format(worksheet, 'B' + str(int(calendarZakazCoord[0]) + 4) + ':F' + str(int(operZakazCoord[0]) - 3))
+        gsfb.format_cell_range(worksheetRed, 'B' + str(int(calendarRedCoord[k]) + 4) + ':F' + str(int(operRedCoord[k]) - 2),genDataPaint)
+    time.sleep(20)
     n = -1
     for i in operRedCoord:
         n=n+1
@@ -401,12 +404,12 @@ def cutHead(table):
             if matchGen:
                 #print('план найден в ячейке :B'+str(j-1))
                 #print(i[0])
-                for k in range(j-7,j+3):
+                for k in range(j-7,j+2):
                     head.append(table[k])
                 return head
             matchCalendar = re.search(r'Кален\w{6}', i[0])
             if matchCalendar:
-                for k in range(j-2,j+4):
+                for k in range(j-2,j+2):
                     head.append(table[k])
                 return head
             matchOper = re.search(r'Опер\w{6}', i[0])
@@ -416,9 +419,12 @@ def cutHead(table):
                 return head
 
 
-def parse(list):
+def parse2(list):
+    #isItLate('20.08.2021')
     j=-1
-
+    list2 = []
+    if len(list)>5:
+        list2 = list[5:]
     redTable = []
     yellowTable = []
     doneTable = []
@@ -450,17 +456,312 @@ def parse(list):
             if len(i) >= 4:
                 b = i[3:]
                 if b!=[]:
-                    str = validDate(i[3])
                     if validDate(i[3]):
                         a = i[4:]
                         if a != []:
                             if validDate(i[4]):
                                 doneTable1.append(i)
                         else:
-                            if isItLate(i[3]):
-                                redTable1.append(i)
+                            if i[3] !='-':
+                                if isItLate(i[3]):
+                                    print()
+                                    redTable1.append(i)
+                                else:
+                                    yellowTable1.append(i)
                             else:
-                                yellowTable1.append(i)
+                                doneTable1.append(i)
+
+        a = []
+
+        doneTable1.append(a)
+        doneTable1.append(a)
+        redTable1.append(a)
+        redTable1.append(a)
+        yellowTable1.append(a)
+        yellowTable1.append(a)
+
+
+        redTableGen = headGenZakaz + redTable1 + []
+        yellowTableGen = headGenZakaz + yellowTable1 + []
+        doneTableGen = headGenZakaz + doneTable1 + []
+
+        for i in calendar:
+            if len(i) >= 4:
+                if validDate(i[3]):
+                    a = i[4:]
+                    if a != []:
+                        if validDate(i[4]):
+                            doneTable2.append(i)
+                    else:
+                        if isItLate(i[3]):
+                            redTable2.append(i)
+                        else:
+                            yellowTable2.append(i)
+
+        a = []
+
+        doneTable2.append(a)
+        doneTable2.append(a)
+        redTable2.append(a)
+        redTable2.append(a)
+        yellowTable2.append(a)
+        yellowTable2.append(a)
+
+        redTableCalendar = headCalendar + redTable2 + []
+        yellowTableCalendar = headCalendar + yellowTable2 + []
+        doneTableCalendar = headCalendar + doneTable2 + []
+
+        for i in oper:
+            if len(i) >= 4:
+                if validDate(i[3]):
+                    a = i[4:]
+                    if a != []:
+                        if validDate(i[4]):
+                            doneTable3.append(i)
+                    else:
+                        if isItLate(i[3]):
+                            redTable3.append(i)
+                        else:
+                            yellowTable3.append(i)
+
+        redTableOper = headOper+ redTable3 + []
+        yellowTableOper = headOper+yellowTable3
+        doneTableOper = headOper+doneTable3
+
+        redTable += [] + redTableGen + redTableCalendar + redTableOper
+        yellowTable += yellowTableGen + yellowTableCalendar + yellowTableOper
+        doneTable += doneTableGen + doneTableCalendar + doneTableOper
+
+    print('Попытка парсинга ещё 5 таблиц:')
+    if list2!=[]:
+
+        for i in list2:
+            j = j + 1
+            table = getTable(i)
+            gen = cutGen(table)
+            headGenZakaz = cutHead(table)
+            headGen = cutGenHead(headGenZakaz)
+            calendar = cutCalendar(table)
+            headCalendar = cutHead(calendar)
+            oper = cutOPer(table)
+            headOper = cutHead(oper)
+            doneTable1 = []
+            redTable1 = []
+            yellowTable1 = []
+            doneTable2 = []
+            redTable2 = []
+            yellowTable2 = []
+            doneTable3 = []
+            redTable3 = []
+            yellowTable3 = []
+            scoreRed = 0
+            scoreYellow = 0
+            scoreDone = 0
+
+            for i in gen:
+                if len(i) >= 4:
+                    b = i[3:]
+                    if b != []:
+                        if validDate(i[3]):
+                            a = i[4:]
+                            if a != []:
+                                if validDate(i[4]):
+                                    doneTable1.append(i)
+                            else:
+                                if i[3] != '-':
+                                    if isItLate(i[3]):
+                                        print()
+                                        redTable1.append(i)
+                                    else:
+                                        yellowTable1.append(i)
+                                else:
+                                    doneTable1.append(i)
+
+            a = []
+
+            doneTable1.append(a)
+            doneTable1.append(a)
+            redTable1.append(a)
+            redTable1.append(a)
+            yellowTable1.append(a)
+            yellowTable1.append(a)
+
+            redTableGen = headGenZakaz + redTable1 + []
+            yellowTableGen = headGenZakaz + yellowTable1 + []
+            doneTableGen = headGenZakaz + doneTable1 + []
+
+            for i in calendar:
+                if len(i) >= 4:
+                    if validDate(i[3]):
+                        a = i[4:]
+                        if a != []:
+                            if validDate(i[4]):
+                                doneTable2.append(i)
+                        else:
+                            if isItLate(i[3]):
+                                redTable2.append(i)
+                            else:
+                                yellowTable2.append(i)
+
+            a = []
+
+            doneTable2.append(a)
+            doneTable2.append(a)
+            redTable2.append(a)
+            redTable2.append(a)
+            yellowTable2.append(a)
+            yellowTable2.append(a)
+
+            redTableCalendar = headCalendar + redTable2 + []
+            yellowTableCalendar = headCalendar + yellowTable2 + []
+            doneTableCalendar = headCalendar + doneTable2 + []
+
+            for i in oper:
+                if len(i) >= 4:
+                    if validDate(i[3]):
+                        a = i[4:]
+                        if a != []:
+                            if validDate(i[4]):
+                                doneTable3.append(i)
+                        else:
+                            if isItLate(i[3]):
+                                redTable3.append(i)
+                            else:
+                                yellowTable3.append(i)
+
+            redTableOper = headOper + redTable3 + []
+            yellowTableOper = headOper + yellowTable3
+            doneTableOper = headOper + doneTable3
+
+            redTable += [] + redTableGen + redTableCalendar + redTableOper
+            yellowTable += yellowTableGen + yellowTableCalendar + yellowTableOper
+            doneTable += doneTableGen + doneTableCalendar + doneTableOper
+
+
+    print('отправляю таблицу:')
+    for i in redTable:
+        print(i)
+    print(len(redTable))
+    time.sleep(30)
+    worksheetRed.clear()
+    worksheetRed.update('B2:F' + str(len(redTable) + 2), redTable)
+    scoreRed += len(redTable) + 6
+    '''worksheetYellow.update('B2:F'+str(len(yellowTable) + 2),yellowTable)
+        scoreYellow+=len(yellowTable) + 3
+        worksheetDone.update('B2:F'+str(len(doneTable) + 2),doneTable)
+        scoreDone+=len(doneTable)+3
+        
+            
+    else:
+        worksheetRed.update('B' + str(scoreRed+2) + ':F' + str(len(redTable) + scoreRed + 1))
+        scoreRed += len(redTable) + 3
+        print('счётчик красные: ' + str(scoreRed))
+        worksheetYellow.update('B' + str(scoreYellow) + ':F' + str(len(yellowTable) + scoreYellow + 1))
+        scoreYellow += len(yellowTable) + 3
+        print('счётчик желтые: ' +str(scoreYellow))
+        worksheetDone.update('B' + str(scoreDone) + ':F' + str(len(doneTable) + scoreDone + 1))
+        scoreRed += len(doneTable) + 3
+        print('счётчик выполненные: '+str(scoreDone))
+    '''
+
+def testOPti2(spreadsheet):
+    gsfb = gsf.batch_updater(spreadsheet)
+    worksheet = spreadsheet.worksheet('шаблоны')
+    genZakazCoord, calendarZakazCoord, operZakazCoord = test3(worksheet)
+    genRedCoord, calendarRedCoord, operRedCoord = test3(worksheetRed)
+    genYellowCoord, calendarYellowCoord, operYellowCoord = test3(worksheetYellow)
+    genDoneCoord, calendarDoneCoord, operDoneCoord = test3(worksheetDone)
+    j = -1
+
+    zakaz = gsf.get_effective_format(worksheet, 'C' + str(int(genZakazCoord[0]) - 4))
+    genHeadPaint = gsf.get_effective_format(worksheet, 'B' + genZakazCoord[0] + ':F' + genZakazCoord[0])
+    genHeadPaint2 = gsf.get_effective_format(worksheet, 'B' + str(int(genZakazCoord[0]) + 1) + ':F' + str(int(genZakazCoord[0]) + 1))
+    genDataPaint = gsf.get_effective_format(worksheet, 'B' + str(int(genZakazCoord[0]) + 4) + ':F' + str(int(genZakazCoord[0]) + 4))
+
+    calendarHeadPaint = gsf.get_effective_format(worksheet, 'B' + calendarZakazCoord[0] + ':F' + calendarZakazCoord[0])
+    calendarHead2Paint = gsf.get_effective_format(worksheet, 'B' + str(int(calendarZakazCoord[0]) + 2) + ':F' + str(int(calendarZakazCoord[0]) + 4))
+    calendarDataPaint = gsf.get_effective_format(worksheet, 'B' + str(int(calendarZakazCoord[0]) + 4) + ':F' + str(int(operZakazCoord[0]) - 3))
+
+    operHeadPaint = gsf.get_effective_format(worksheet, 'B' + operZakazCoord[0] + ':F' + operZakazCoord[0])
+    operHead2Paint = gsf.get_effective_format(worksheet, 'B' + str(int(operZakazCoord[0]) + 1) + ':F' + str(int(operZakazCoord[0]) + 2))
+    operDataPaint = gsf.get_effective_format(worksheet, 'B' + str(int(operZakazCoord[0]) + 3) + ':F' + str(int(operZakazCoord[0]) + 3))
+    for i in genRedCoord:
+        j = j + 1
+        gsfb.format_cell_range(worksheetRed, 'B' + str(int(genRedCoord[j]) - 5) + ':D' + str(int(genRedCoord[j]) - 3),zakaz)
+        print('Крашу шапку генерального плана (заказ) красной таблицы: B' + str(int(genRedCoord[j]) - 5) + ':D' + str(int(genRedCoord[j]) - 3))
+        gsfb.format_cell_range(worksheetRed, 'B' + genRedCoord[j] + ':F' + genRedCoord[j], genHeadPaint)
+        print('Крашу шапку генерального плана 1 красной таблицы: B' + genRedCoord[j] + ':F' + genRedCoord[j])
+        gsfb.format_cell_range(worksheetRed, 'B' + str(int(genRedCoord[j])+1)  + ':F' + str(int(genRedCoord[j])+3), genHeadPaint2)
+        print('Крашу шапку генерального плана 2 красной таблицы: B' + str(int(genRedCoord[j])+1) + ':F' + str(int(genRedCoord[j])+3))
+        print(str(int(genRedCoord[j])+4)+str(int(calendarRedCoord[j])-2))
+        gsfb.format_cell_range(worksheetRed,'B' + str(int(genRedCoord[j])+4) + ':F' + str(int(calendarRedCoord[j]) - 2),genDataPaint)
+    #time.sleep(20)
+
+    k=-1
+    for i in calendarRedCoord:
+        k=k+1
+        print('Координаты Шапки календарного плана: B' + calendarZakazCoord[0] + ':F' + calendarZakazCoord[0])
+        gsfb.format_cell_range(worksheetRed, 'B' + calendarRedCoord[k] + ':F' + calendarRedCoord[k], calendarHeadPaint)
+        print('Координаты шапки Календарного плана:'+'B'+str(int(calendarZakazCoord[0])+2)+':F'+str(int(calendarZakazCoord[0])+4))
+        gsfb.format_cell_range(worksheetRed, 'B'+str(int(calendarRedCoord[k])+1)+':F'+str(int(calendarRedCoord[k])+3),calendarHead2Paint)
+        gsfb.format_cell_range(worksheetRed, 'B' + str(int(calendarRedCoord[k]) + 4) + ':F' + str(int(operRedCoord[k]) - 2),calendarDataPaint)
+    #time.sleep(20)
+    n = -1
+    for i in operRedCoord:
+        n=n+1
+        print('Координаты Шапки календарного плана: B' + operZakazCoord[0] + ':F' + operZakazCoord[0])
+        gsfb.format_cell_range(worksheetRed, 'B' + operRedCoord[n] + ':F' + operRedCoord[n], operHeadPaint)
+        print('Координаты шапки Календарного плана:' + 'B' + str(int(operZakazCoord[0]) + 1) + ':F' + str(int(operZakazCoord[0]) + 2))
+        gsfb.format_cell_range(worksheetRed,'B' + str(int(operRedCoord[n]) + 1) + ':F' + str(int(operRedCoord[n]) + 2),operHead2Paint)
+        gsfb.format_cell_range(worksheetRed,'B' + str(int(operRedCoord[n]) + 3) + ':F' + str(int(operRedCoord[n]) + 3),operDataPaint)
+    gsfb.execute()
+
+def parse2(list):
+    j = -1
+
+    redTable = []
+    yellowTable = []
+    doneTable = []
+    for i in list:
+        j = j + 1
+        table = getTable(i)
+        gen = cutGen(table)
+        headGenZakaz = cutHead(table)
+        headGen = cutGenHead(headGenZakaz)
+        calendar = cutCalendar(table)
+        headCalendar = cutHead(calendar)
+        oper = cutOPer(table)
+        headOper = cutHead(oper)
+        doneTable1 = []
+        redTable1 = []
+        yellowTable1 = []
+        doneTable2 = []
+        redTable2 = []
+        yellowTable2 = []
+        doneTable3 = []
+        redTable3 = []
+        yellowTable3 = []
+        scoreRed = 0
+        scoreYellow = 0
+        scoreDone = 0
+
+        for i in gen:
+            if len(i) >= 4:
+                b = i[3:]
+                if b != []:
+                    if validDate(i[3]):
+                        a = i[4:]
+                        if a != []:
+                            if validDate(i[4]):
+                                doneTable1.append(i)
+                        else:
+                            if i[3] != '-':
+                                if isItLate(i[3]):
+                                    redTable1.append(i)
+                                else:
+                                    yellowTable1.append(i)
+                            else:
+                                doneTable1.append(i)
 
         a = []
         doneTable1.append(a)
@@ -469,7 +770,6 @@ def parse(list):
         redTable1.append(a)
         yellowTable1.append(a)
         yellowTable1.append(a)
-
 
         redTableGen = headGenZakaz + redTable1 + []
         yellowTableGen = headGenZakaz + yellowTable1 + []
@@ -513,16 +813,16 @@ def parse(list):
                         else:
                             yellowTable3.append(i)
 
-        redTableOper = headOper+ redTable3
-        yellowTableOper = headOper+yellowTable3
-        doneTableOper = headOper+doneTable3
+        redTableOper = headOper + redTable3
+        yellowTableOper = headOper + yellowTable3
+        doneTableOper = headOper + doneTable3
 
-        redTable += redTableGen+ [] + redTableCalendar + redTableOper
+        redTable += redTableGen + [] + redTableCalendar + redTableOper
         yellowTable += yellowTableGen + yellowTableCalendar + yellowTableOper
         doneTable += doneTableGen + doneTableCalendar + doneTableOper
 
         '''print('Красная таблица:')
-        
+
         print('Желтая таблица')
         for i in yellowTable:
             print(i)
@@ -539,8 +839,8 @@ def parse(list):
         scoreYellow+=len(yellowTable) + 3
         worksheetDone.update('B2:F'+str(len(doneTable) + 2),doneTable)
         scoreDone+=len(doneTable)+3
-        
-            
+    
+
     else:
         worksheetRed.update('B' + str(scoreRed+2) + ':F' + str(len(redTable) + scoreRed + 1))
         scoreRed += len(redTable) + 3
@@ -574,14 +874,26 @@ def testPaint():
 #worksheet = spreadsheet.worksheet('2747')
 #test = worksheet.batch_get(['B2:F10', 'B11'])
 #print(test)
-list = ['2777','2707-02','2707-01','2776','2774']
+print(spreadsheet.worksheets())
+list = ['2777','2707-02','2707-01','2776','2774','2767','2761','2754','2752','2747']
 list2 = ['2767','2761','2754','2752','2747']
 list3 = []
-parse(list)
-time.sleep(60)
-parse(list2)
-time.sleep(60)
-testOPti(spreadsheet)
+#parse2(list)
+#testOPti2(spreadsheet)
+
+
+def testGet():
+    gsfGet = gsf.batch_updater(spreadsheet)
+    gsfGet.get_effective_format(worksheetRed, 'B2:F2')
+    worksheetRed.clear()
+    gsfGet.format_cell_range(worksheetRed, 'B2:F2')
+    gsfGet.execute()
+#test = ['2761', '2747']
+'''parse2(list)
+time.sleep(30)
+testOPti(spreadsheet)'''
+#testGet()
+
 '''print(len(data))
 if len(data) < 10:
     testDate = datetime.strptime(data, '%d.%m.%y')
