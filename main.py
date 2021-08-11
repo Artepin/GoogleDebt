@@ -12,25 +12,6 @@ worksheetRed = spreadsheet.worksheet("красные")     #Поключение
 worksheetYellow = spreadsheet.worksheet("желтые")   #Поключение листа "Желтые" для дальнейшей работы в таблице
 worksheetDone = spreadsheet.worksheet("выполненные")#Поключение листа "выполненные" для дальнейшей работы в таблице
 
-def findWorsheet(name):
-    print(name)
-    sheet = re.search(r'\d{4}', name)
-    if sheet:
-        return True
-    else:
-        return False
-
-
-def listOfSheets():
-    getList = spreadsheet.worksheets()
-    sheets = []
-    print(getList)
-    for i in getList:
-        if findWorsheet(str(i)):
-            sheets.append(i)
-    return sheets
-
-
 def dateTransform(data):
     if data !='None':
         if data!= '-':
@@ -80,7 +61,7 @@ def isItLate(data):
         return True
 
     elif int(day)>14:
-        return 1
+        return 2
     else:
         return False
 
@@ -217,7 +198,7 @@ def getTable(table):
         if searchPerep:
             table =worksheet.batch_get(['B2:F'+str(j)])
             #print(j)
-            table2 =table[0]
+            table2=table[0]
             #print(table2)
     return table2
 
@@ -295,7 +276,7 @@ def cutHead(table):
                 return head
             matchOper = re.search(r'Опер\w{6}', i[0])
             if matchOper:
-                for k in range(j-1, j + 1):
+                for k in range(j-2, j + 1):
                     head.append(table[k])
                 return head
 
@@ -354,11 +335,10 @@ def parse2(list):
                                 doneTable1.append(i)
                         else:
                             if i[3] !='-':
-                                if isItLate(i[3]):
-                                    print()
-                                    redTable1.append(i)
-                                elif isItLate(i[3])==1:
+                                if isItLate(i[3])==2:
                                     continue
+                                elif isItLate(i[3]):
+                                    redTable1.append(i)
                                 else:
                                     yellowTable1.append(i)
                             else:
@@ -395,11 +375,10 @@ def parse2(list):
                                 doneTable2.append(i)
                         else:
                             if i[3] != '-':
-                                if isItLate(i[3]):
-                                    print()
-                                    redTable2.append(i)
-                                elif isItLate(i[3])==1:
+                                if isItLate(i[3]) == 2:
                                     continue
+                                elif isItLate(i[3]):
+                                    redTable2.append(i)
                                 else:
                                     yellowTable2.append(i)
                             else:
@@ -435,11 +414,11 @@ def parse2(list):
                                 doneTable3.append(i)
                         else:
                             if i[3] != '-':
-                                if isItLate(i[3]):
-                                    print()
-                                    redTable3.append(i)
-                                elif isItLate(i[3])==1:
+                                if isItLate(i[3]) == 2:
+                                    print(i)
                                     continue
+                                elif isItLate(i[3]):
+                                    redTable3.append(i)
                                 else:
                                     yellowTable3.append(i)
                             else:
@@ -659,11 +638,11 @@ list3 = ['2613','2634','2650',
         '2752','2754','2761','2764','2767',
         '2776','2777']
 warn = ['2150','2673','2686','2714','2715',]
-listMy = ['2777', '2707-02','2707-01', '2776','2774','2767', '2761','2754','2752','2747' ]
+listMy = ['2634','2777', '2707-02','2707-01', '2776','2774','2767', '2761','2754','2752','2747' ]
 
 #list = getList()
-parse2(list3)
-time.sleep(30)
+parse2(listMy)
+#time.sleep(30)
 testOPti2(spreadsheet)
 
 
