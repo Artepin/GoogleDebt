@@ -6,8 +6,8 @@ import re                                           #Импорт модуля �
 import gspread_formatting as gsf                    #Импорт модуля управления форматированием таблицы
 import time                                         #Импорт модуля управления временем
 gp = gspread.service_account(filename='./auth.json')#Авторизация сервисного аккаунта через файл auth.json
-spreadsheet = gp.open(' РСС ведение заказов')      #Подключение таблицы РСС заказы
-#spreadsheet = gp.open('TestParseMyProg')            #Подключение  тестовой таблицы для проверки новых функций
+#spreadsheet = gp.open(' РСС ведение заказов')      #Подключение таблицы РСС заказы
+spreadsheet = gp.open('TestParseMyProg')            #Подключение  тестовой таблицы для проверки новых функций
 worksheetRed = spreadsheet.worksheet("красные")     #Поключение листа "Красные" для дальнейшей работы в таблице
 worksheetYellow = spreadsheet.worksheet("желтые")   #Поключение листа "Желтые" для дальнейшей работы в таблице
 worksheetDone = spreadsheet.worksheet("выполненные")#Поключение листа "выполненные" для дальнейшей работы в таблице
@@ -610,7 +610,43 @@ def testPaint():
     gsfb.format_cell_range(worksheetRed,'B10:F15',paintHead2)
     gsfb.execute()
 
-#def clearFormat(spreadsheet):
+def itIsDate(data):
+    print(data)
+    validFull = re.search(r'\d[2].\d[2].\d[4]',data)
+    if validFull:
+        return True
+    else:
+        validPart = re.search(r'\d[2].\d[2],\d[2]',data)
+        if validPart:
+            return True
+        else:
+            return False
+
+def getRed():
+    b = worksheetRed.col_values(2)
+    redTable2 =  worksheetRed.batch_get(['B2:F'+str(len(b))])
+    redTable = redTable2[0]
+    for i in redTable:
+        print(i)
+    print(len(b))
+    return redTable
+
+def parseData(table):
+    a = 0
+    newDates = []
+    for i in table:
+        a+=1
+        if len(i)>4:
+            if itIsDate(str(i[4])):
+                newDates.append(i)
+
+    print(newDates)
+    return newDates
+
+def parseRed():
+    table = getRed()
+    newDates =parseData(table)
+
 
 
 def exportListOfSheets():
@@ -640,9 +676,10 @@ list3 = ['2613','2634','2650',
 warn = ['2150','2673','2686','2714','2715',]
 listMy = ['2634','2777', '2707-02','2707-01', '2776','2774','2767', '2761','2754','2752','2747' ]
 
+parseRed()
 #list = getList()
-parse2(listMy)
+#parse2(listMy)
 #time.sleep(30)
-testOPti2(spreadsheet)
+#testOPti2(spreadsheet)
 
 
