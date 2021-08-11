@@ -612,11 +612,11 @@ def testPaint():
 
 def itIsDate(data):
     print(data)
-    validFull = re.search(r'\d[2].\d[2].\d[4]',data)
+    validFull = re.search(r'\d{2}.\d{2}.\d{4}',data)
     if validFull:
         return True
     else:
-        validPart = re.search(r'\d[2].\d[2],\d[2]',data)
+        validPart = re.search(r'\d{2}.\d{2},\d{2}',data)
         if validPart:
             return True
         else:
@@ -628,7 +628,7 @@ def getRed():
     redTable = redTable2[0]
     for i in redTable:
         print(i)
-    print(len(b))
+    #print(len(b))
     return redTable
 
 def parseData(table):
@@ -639,13 +639,28 @@ def parseData(table):
         if len(i)>4:
             if itIsDate(str(i[4])):
                 newDates.append(i)
-
+    print('Таблица с новыми датами:')
     print(newDates)
     return newDates
+
+def findNmber(table):
+    number = []
+    coord = []
+    j=0
+    for i in table:
+        if i!=[]:
+            find = re.search(r'\d{4}',i[0])
+            if find:
+                number.append('B'+str(int(j)+2)+' '+i[0])
+        j = j + 1
+    print(number)
+
 
 def parseRed():
     table = getRed()
     newDates =parseData(table)
+    findNmber(table)
+
 
 
 
