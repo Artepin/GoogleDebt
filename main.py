@@ -6,55 +6,52 @@ import re                                           #Импорт модуля �
 import gspread_formatting as gsf                    #Импорт модуля управления форматированием таблицы
 import time                                         #Импорт модуля управления временем
 gp = gspread.service_account(filename='./auth.json')#Авторизация сервисного аккаунта через файл auth.json
-#spreadsheet = gp.open(' РСС ведение заказов')      #Подключение таблицы РСС заказы
-spreadsheet = gp.open('TestParseMyProg')            #Подключение  тестовой таблицы для проверки новых функций
+spreadsheet = gp.open(' РСС ведение заказов')      #Подключение таблицы РСС заказы
+#spreadsheet = gp.open('TestParseMyProg')            #Подключение  тестовой таблицы для проверки новых функций
 worksheetRed = spreadsheet.worksheet("красные")     #Поключение листа "Красные" для дальнейшей работы в таблице
 worksheetYellow = spreadsheet.worksheet("желтые")   #Поключение листа "Желтые" для дальнейшей работы в таблице
 worksheetDone = spreadsheet.worksheet("выполненные")#Поключение листа "выполненные" для дальнейшей работы в таблице
 
-def dateTransform(data):
-    if data !='None':
-        if data!= '-':
-            print(data)
-            if len(data)<10:
-                testDate = datetime.strptime(data, '%d.%m.%y')
-            else:
-                testDate = datetime.strptime(data, '%d.%m.%Y')
-            print(data)
-            #date = datetime.date(int(year),int(month),int(day))
-            print(testDate)
+def dateTransform(data):                            #Функция преобразования даты из таблицы для сравнения
+    if data !='None':                               #Если дата не равна пустой клетке
+        if data!= '-':                              #Если дата не равна прочерку
+            #print(data)
+            if len(data)<10:                        #Если дата длиной меньше 10 символов
+                testDate = datetime.strptime(data, '%d.%m.%y') #Преобразуем дату формата хх.хх.хх в американский формат, понятный программе
+            else:                                              #Если дата полного формата
+                testDate = datetime.strptime(data, '%d.%m.%Y') #Преобразуем дату формата хх.хх.хххх в американский формат, понятный программе
             return testDate
     else:
         print('Please,input correct date')
 
 
-def dateRazn(data1,data2):
-    days = data2 - data1
-    return days
+def dateRazn(data1,data2):                            #Функция, возвращающая разницу дат
+    days = data2 - data1                              #разница в днях = плановая дата - дата на сегодня
+    return days                                       #Возвращаем разницу
 
-def validDate(data):
+def validDate(data):                                  #функция проверки наличия даты в ячейке
     if data == None:
         data = '0'
-    matchOtmen = re.search(r'Отменен|отменено|-', data)
+    matchOtmen = re.search(r'Отменен|отменено|-', data) #Если даты в ячейке нет, но в ней прописана отмена
     if matchOtmen:
-        return True
-    match =re.search(r'\d\d.\d\d.\d{4}',data)
+        return True                                     #Возвращаем да для таблицы выполненные
+    match =re.search(r'\d\d.\d\d.\d{4}',data)           #Если мы нашли дату
     if match:
         #print("date is valid")
-        return True
+        return True                                     # Возвращаем да
     else:
-        match2 = re.search(r'\d\d.\d\d.\d{2}', data)
+        match2 = re.search(r'\d\d.\d\d.\d{2}', data)    #Если мы нашли дату
         if match2:
-            return True
+            return True                                 # Возвращаем да
         #print("date is not valid")
-        return False
+        return False                                    # Если мы дату не нашли, возвращаем нет
 
-def isItLate(data):
-    dateNow = date.today()
-    datePlan = dateTransform(data)
-    if datePlan ==None:
+def isItLate(data):                                     #Функция, определяющая давность даты
+    dateNow = date.today()                              #Запрашиваем дату на сегодняшний момент
+    datePlan = dateTransform(data)                      #Преобразуем дату в формат, понятный программе в функции выше
+    '''if datePlan ==None:                                 
         #print(data)
-        datePlan = datetime.strptime(data, '%d.%m.%y')
+        datePlan = datetime.strptime(data, '%d.%m.%y')'''
     razn = datePlan.date() - dateNow
     day = razn.days
     if int(day) <= 0:
@@ -291,6 +288,7 @@ def getList():
         if i[8] =='1':
             list.append(i[0])
     print(list)
+    list = tryValid(list)
     return  list
 
 def parse2(list):
@@ -473,9 +471,15 @@ def testOPti2(spreadsheet):
     genRedCoord, calendarRedCoord, operRedCoord = test3(worksheetRed)
     genYellowCoord, calendarYellowCoord, operYellowCoord = test3(worksheetYellow)
     genDoneCoord, calendarDoneCoord, operDoneCoord = test3(worksheetDone)
+    lenRed = operRedCoord[::-1]
+    lenYellow = operYellowCoord[::-1]
+    lenDone = operDoneCoord[::-1]
 
-    #clear = gsf.get_effective_format(worksheetRed,'F2')
-    #gsf.format_cell_range(worksheetRed,'B2:F'+ str(int(operRedCoord[0]) + 3),clear)
+
+    clear = gsf.get_effective_format(worksheetRed,'F2')
+    gsfb.format_cell_range(worksheetRed,'B2:F'+ str(int(lenRed[0]) + 3),clear)
+    gsfb.format_cell_range(worksheetYellow,'B2:F'+ str(int(lenYellow[0]) + 3),clear)
+    gsfb.format_cell_range(worksheetDone,'B2:F'+ str(int(lenDone[0]) + 3),clear)
     zakaz = gsf.get_effective_format(worksheet, 'C' + str(int(genZakazCoord[0]) - 4))
     genHeadPaint = gsf.get_effective_format(worksheet, 'B' + genZakazCoord[0] + ':F' + genZakazCoord[0])
     genHeadPaint2 = gsf.get_effective_format(worksheet, 'B' + str(int(genZakazCoord[0]) + 1) + ':F' + str(int(genZakazCoord[0]) + 1))
@@ -616,53 +620,11 @@ def itIsDate(data):
     if validFull:
         return True
     else:
-        validPart = re.search(r'\d{2}.\d{2},\d{2}',data)
+        validPart = re.search(r'\d{2}.\d{2}.\d{2}',data)
         if validPart:
             return True
         else:
             return False
-
-def getRed():
-    b = worksheetRed.col_values(2)
-    redTable2 =  worksheetRed.batch_get(['B2:F'+str(len(b))])
-    redTable = redTable2[0]
-    for i in redTable:
-        print(i)
-    #print(len(b))
-    return redTable
-
-def parseData(table):
-    a = 0
-    newDates = []
-    for i in table:
-        a+=1
-        if len(i)>4:
-            if itIsDate(str(i[4])):
-                newDates.append(i)
-    print('Таблица с новыми датами:')
-    print(newDates)
-    return newDates
-
-def findNmber(table):
-    number = []
-    coord = []
-    j=0
-    for i in table:
-        if i!=[]:
-            find = re.search(r'\d{4}',i[0])
-            if find:
-                number.append('B'+str(int(j)+2)+' '+i[0])
-        j = j + 1
-    print(number)
-
-
-def parseRed():
-    table = getRed()
-    newDates =parseData(table)
-    findNmber(table)
-
-
-
 
 def exportListOfSheets():
     lst = []
@@ -683,18 +645,110 @@ def exportListOfSheets():
     print(result)
     return result
 
+def getRed():
+    b = worksheetRed.col_values(2)
+    redTable2 =  worksheetRed.batch_get(['B2:F'+str(len(b))])
+    redTable = redTable2[0]
+    #for i in redTable:
+    #print(i)
+    #print(len(b))
+    return redTable
+
+def parseData(table):
+    a = 0
+    coord = []
+    spis = []
+
+    rTable = []
+    for i in table:
+        if len(i)>4:
+            if itIsDate(str(i[3])):
+                newDates = []
+                print(i)
+                rTable = table[:a]
+                rTable = rTable[::-1]
+                for c in rTable:
+                    if c!=[]:
+                        findNum = re.search(r'\d{4}', c[0])
+                        if findNum:
+                            newDates.append(c[0])
+                            print([c[0]])
+                            break
+                for b in rTable:
+                    if b != []:
+                        findGen = re.search(r'Генеральный', b[0])
+                        findCalendar = re.search(r'Календарный', b[0])
+                        findOPer = re.search(r'Оперативный', b[0])
+                        if findGen or findCalendar or findOPer:
+                            newDates.append(b[0])
+                            break
+                newDates.append(i)
+                spis.append(newDates)
+        a += 1
+    print('Таблица с новыми датами:')
+    print(spis)
+    return spis
+
+def parseRed():
+    table = getRed()
+    newDates =parseData(table)
+    return newDates
+
+def redNewDates():
+    newDates = parseRed()
+    if newDates !=[]:
+        getNumTable = newDates[0][0]
+        print(getNumTable)
+        worksheet = spreadsheet.worksheet(getNumTable)
+        length = str(len(worksheet.col_values(2)))
+        print(length)
+        table2 = worksheet.batch_get(['B2:F'+length])
+        table = table2[0]
+        flag = False
+        a = 0
+        for i in table:
+            if i!=[]:
+                if len(i)>3:
+                    b = 0
+                    for c in newDates:
+                        if i[1] == newDates[b][2][1]:
+                            print('Нашёл строку: ')
+                            print(i)
+                            if newDates ==[]:
+                                table[a] = []
+                            else:
+                                table[a] = newDates[b][2]
+                        b+=1
+            a+=1
+        for i in table:
+            print(i)
+        print('B2:F'+length)
+        worksheet.update('B2:F'+length,table)
+
+def tryValid(list):
+    rezList = []
+    for i in list:
+        table =getTable(i)
+        a = findWords(table)
+        #print (len(a))
+        if len(findWords(table))==4:
+            rezList.append(i)
+    print(rezList)
+    return rezList
+
+
 list3 = ['2613','2634','2650',
         '2691','2692','2707-01', '2707-02',
         '2716','2739', '2747',
         '2752','2754','2761','2764','2767',
         '2776','2777']
+list1 = ['2613']
 warn = ['2150','2673','2686','2714','2715',]
 listMy = ['2634','2777', '2707-02','2707-01', '2776','2774','2767', '2761','2754','2752','2747' ]
 
-parseRed()
-#list = getList()
-#parse2(listMy)
-#time.sleep(30)
-#testOPti2(spreadsheet)
-
+#redNewDates()
+list = getList()
+time.sleep(30)
+parse2(list)
+testOPti2(spreadsheet)
 
