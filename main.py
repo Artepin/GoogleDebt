@@ -6,7 +6,11 @@ import re                                           #Импорт модуля �
 import gspread_formatting as gsf                    #Импорт модуля управления форматированием таблицы
 import time                                         #Импорт модуля управления временем
 gp = gspread.service_account(filename='./auth.json')#Авторизация сервисного аккаунта через файл auth.json
+gp2 = gspread.service_account(filename='./auth2.json')
+gp3 = gspread.service_account(filename='./auth2.json')
 spreadsheet = gp.open(' РСС ведение заказов')      #Подключение таблицы РСС заказы
+spreadsheet2 = gp2.open(' РСС ведение заказов')
+spreadsheet3 = gp3.open(' РСС ведение заказов')
 #spreadsheet = gp.open('TestParseMyProg')            #Подключение  тестовой таблицы для проверки новых функций
 worksheetRed = spreadsheet.worksheet("красные")     #Поключение листа "Красные" для дальнейшей работы в таблице
 worksheetYellow = spreadsheet.worksheet("желтые")   #Поключение листа "Желтые" для дальнейшей работы в таблице
@@ -199,6 +203,38 @@ def getTable(table):
             #print(table2)
     return table2
 
+def getTable2(table):
+    worksheet = spreadsheet2.worksheet(table)
+    b = worksheet.col_values(2)
+    j = 0
+    start = []
+    for i in b:
+        j=j+1
+        searchPerep = re.search(r'Переписка', i)
+        if searchPerep:
+            table =worksheet.batch_get(['B2:F'+str(j)])
+            #print(j)
+            table2=table[0]
+            #print(table2)
+    return table2
+
+
+def getTable3(table):
+    worksheet = spreadsheet3.worksheet(table)
+    b = worksheet.col_values(2)
+    j = 0
+    start = []
+    for i in b:
+        j=j+1
+        searchPerep = re.search(r'Переписка', i)
+        if searchPerep:
+            table =worksheet.batch_get(['B2:F'+str(j)])
+            #print(j)
+            table2=table[0]
+            #print(table2)
+    return table2
+
+
 def findWords(table):
     j=0
     words = []
@@ -288,160 +324,166 @@ def getList():
         if i[8] =='1':
             list.append(i[0])
     print(list)
-    list = tryValid(list)
-    return  list
+    return list
 
 def parse2(list):
     j=-1
+    c=0
     redTable = []
     yellowTable = []
     doneTable = []
     for i in list:
+        c+=1
+        print('Таблица №'+str(c))
         #print(str(j+3)+'Таблица')
         print(list[j+1])
         j = j + 1
-        table = getTable(i)
-        gen = cutGen(table)
-        headGenZakaz = cutHead(table)
-        #headGen = cutGenHead(headGenZakaz)
-        calendar = cutCalendar(table)
-        headCalendar = cutHead(calendar)
-        oper = cutOPer(table)
-        headOper = cutHead(oper)
-        doneTable1 = []
-        redTable1 = []
-        yellowTable1 = []
-        doneTable2 = []
-        redTable2 = []
-        yellowTable2 = []
-        doneTable3 = []
-        redTable3 = []
-        yellowTable3 = []
-        scoreRed = 0
-        scoreYellow = 0
-        scoreDone = 0
 
+        if c>18 and c<38:
+            table = getTable2(i)
+        elif c>=38:
+            table = getTable3(i)
+        else:
+            table = getTable(i)
+        numWords = findWords(table)
+        if len(numWords)==4:
+            gen = cutGen(table)
+            headGenZakaz = cutHead(table)
+            # headGen = cutGenHead(headGenZakaz)
+            calendar = cutCalendar(table)
+            headCalendar = cutHead(calendar)
+            oper = cutOPer(table)
+            headOper = cutHead(oper)
+            doneTable1 = []
+            redTable1 = []
+            yellowTable1 = []
+            doneTable2 = []
+            redTable2 = []
+            yellowTable2 = []
+            doneTable3 = []
+            redTable3 = []
+            yellowTable3 = []
+            scoreRed = 0
+            scoreYellow = 0
+            scoreDone = 0
 
-        for i in gen:
-            if len(i) >= 4:
-                b = i[3:]
-                if b!=[]:
-                    if validDate(i[3]):
-                        a = i[4:]
-                        if a != []:
-                            if validDate(i[4]):
-                                doneTable1.append(i)
-                        else:
-                            if i[3] !='-':
-                                if isItLate(i[3])==2:
-                                    continue
-                                elif isItLate(i[3]):
-                                    redTable1.append(i)
-                                else:
-                                    yellowTable1.append(i)
+            for i in gen:
+                if len(i) >= 4:
+                    b = i[3:]
+                    if b != []:
+                        if validDate(i[3]):
+                            a = i[4:]
+                            if a != []:
+                                if validDate(i[4]):
+                                    doneTable1.append(i)
                             else:
-                                doneTable1.append(i)
-
-        a = []
-
-        doneTable1.append(a)
-        doneTable1.append(a)
-        redTable1.append(a)
-        redTable1.append(a)
-        yellowTable1.append(a)
-        yellowTable1.append(a)
-
-
-        redTableGen = headGenZakaz + redTable1
-        redTableGen.append(a)
-        redTableGen.append(a)
-        yellowTableGen = headGenZakaz + yellowTable1
-        yellowTableGen.append(a)
-        yellowTableGen.append(a)
-        doneTableGen = headGenZakaz + doneTable1
-        doneTableGen.append(a)
-        doneTableGen.append(a)
-
-        for i in calendar:
-            if len(i) >= 4:
-                b = i[3:]
-                if b != []:
-                    if validDate(i[3]):
-                        a = i[4:]
-                        if a != []:
-                            if validDate(i[4]):
-                                doneTable2.append(i)
-                        else:
-                            if i[3] != '-':
-                                if isItLate(i[3]) == 2:
-                                    continue
-                                elif isItLate(i[3]):
-                                    redTable2.append(i)
+                                if i[3] != '-':
+                                    if isItLate(i[3]) == 2:
+                                        continue
+                                    elif isItLate(i[3]):
+                                        redTable1.append(i)
+                                    else:
+                                        yellowTable1.append(i)
                                 else:
-                                    yellowTable2.append(i)
+                                    doneTable1.append(i)
+
+            a = []
+
+            doneTable1.append(a)
+            doneTable1.append(a)
+            redTable1.append(a)
+            redTable1.append(a)
+            yellowTable1.append(a)
+            yellowTable1.append(a)
+
+            redTableGen = headGenZakaz + redTable1
+            redTableGen.append(a)
+            redTableGen.append(a)
+            yellowTableGen = headGenZakaz + yellowTable1
+            yellowTableGen.append(a)
+            yellowTableGen.append(a)
+            doneTableGen = headGenZakaz + doneTable1
+            doneTableGen.append(a)
+            doneTableGen.append(a)
+
+            for i in calendar:
+                if len(i) >= 4:
+                    b = i[3:]
+                    if b != []:
+                        if validDate(i[3]):
+                            a = i[4:]
+                            if a != []:
+                                if validDate(i[4]):
+                                    doneTable2.append(i)
                             else:
-                                doneTable2.append(i)
-
-        a = []
-
-        doneTable2.append(a)
-        doneTable2.append(a)
-        redTable2.append(a)
-        redTable2.append(a)
-        yellowTable2.append(a)
-        yellowTable2.append(a)
-
-        redTableCalendar = headCalendar + redTable2
-        redTableCalendar.append(a)
-        redTableCalendar.append(a)
-        yellowTableCalendar = headCalendar + yellowTable2
-        yellowTableCalendar.append(a)
-        yellowTableCalendar.append(a)
-        doneTableCalendar = headCalendar + doneTable2
-        doneTableCalendar.append(a)
-        doneTableCalendar.append(a)
-
-        for i in oper:
-            if len(i) >= 4:
-                b = i[3:]
-                if b != []:
-                    if validDate(i[3]):
-                        a = i[4:]
-                        if a != []:
-                            if validDate(i[4]):
-                                doneTable3.append(i)
-                        else:
-                            if i[3] != '-':
-                                if isItLate(i[3]) == 2:
-                                    print(i)
-                                    continue
-                                elif isItLate(i[3]):
-                                    redTable3.append(i)
+                                if i[3] != '-':
+                                    if isItLate(i[3]) == 2:
+                                        continue
+                                    elif isItLate(i[3]):
+                                        redTable2.append(i)
+                                    else:
+                                        yellowTable2.append(i)
                                 else:
-                                    yellowTable3.append(i)
+                                    doneTable2.append(i)
+
+            a = []
+
+            doneTable2.append(a)
+            doneTable2.append(a)
+            redTable2.append(a)
+            redTable2.append(a)
+            yellowTable2.append(a)
+            yellowTable2.append(a)
+
+            redTableCalendar = headCalendar + redTable2
+            redTableCalendar.append(a)
+            redTableCalendar.append(a)
+            yellowTableCalendar = headCalendar + yellowTable2
+            yellowTableCalendar.append(a)
+            yellowTableCalendar.append(a)
+            doneTableCalendar = headCalendar + doneTable2
+            doneTableCalendar.append(a)
+            doneTableCalendar.append(a)
+
+            for i in oper:
+                if len(i) >= 4:
+                    b = i[3:]
+                    if b != []:
+                        if validDate(i[3]):
+                            a = i[4:]
+                            if a != []:
+                                if validDate(i[4]):
+                                    doneTable3.append(i)
                             else:
-                                doneTable3.append(i)
+                                if i[3] != '-':
+                                    if isItLate(i[3]) == 2:
+                                        print(i)
+                                        continue
+                                    elif isItLate(i[3]):
+                                        redTable3.append(i)
+                                    else:
+                                        yellowTable3.append(i)
+                                else:
+                                    doneTable3.append(i)
 
-        redTableOper = headOper+ redTable3
-        redTableOper.append(a)
-        redTableOper.append(a)
-        yellowTableOper = headOper+yellowTable3
-        yellowTableOper.append(a)
-        yellowTableOper.append(a)
-        doneTableOper = headOper+doneTable3
-        doneTableOper.append(a)
-        doneTableOper.append(a)
+            redTableOper = headOper + redTable3
+            redTableOper.append(a)
+            redTableOper.append(a)
+            yellowTableOper = headOper + yellowTable3
+            yellowTableOper.append(a)
+            yellowTableOper.append(a)
+            doneTableOper = headOper + doneTable3
+            doneTableOper.append(a)
+            doneTableOper.append(a)
 
-        redTable += [] + redTableGen + redTableCalendar + redTableOper
-        redTable.append(a)
+            redTable += [] + redTableGen + redTableCalendar + redTableOper
+            redTable.append(a)
 
-        yellowTable += yellowTableGen + yellowTableCalendar + yellowTableOper
-        yellowTable.append(a)
+            yellowTable += yellowTableGen + yellowTableCalendar + yellowTableOper
+            yellowTable.append(a)
 
-        doneTable += doneTableGen + doneTableCalendar + doneTableOper
-        doneTable.append(a)
-
-
+            doneTable += doneTableGen + doneTableCalendar + doneTableOper
+            doneTable.append(a)
 
     print('отправляю таблицу красные:')
     for i in redTable:
@@ -454,15 +496,16 @@ def parse2(list):
         print(i)
 
     print(len(redTable))
-    #time.sleep(30)
+        # time.sleep(30)
     worksheetRed.clear()
     worksheetRed.update('B2:F' + str(len(redTable) + 2), redTable)
 
     worksheetYellow.clear()
-    worksheetYellow.update('B2:F'+str(len(yellowTable) + 2),yellowTable)
+    worksheetYellow.update('B2:F' + str(len(yellowTable) + 2), yellowTable)
 
     worksheetDone.clear()
-    worksheetDone.update('B2:F'+str(len(doneTable) + 2),doneTable)
+    worksheetDone.update('B2:F' + str(len(doneTable) + 2), doneTable)
+
 
 def testOPti2(spreadsheet):
     gsfb = gsf.batch_updater(spreadsheet)
@@ -736,19 +779,8 @@ def tryValid(list):
     print(rezList)
     return rezList
 
-
-list3 = ['2613','2634','2650',
-        '2691','2692','2707-01', '2707-02',
-        '2716','2739', '2747',
-        '2752','2754','2761','2764','2767',
-        '2776','2777']
-list1 = ['2613']
-warn = ['2150','2673','2686','2714','2715',]
-listMy = ['2634','2777', '2707-02','2707-01', '2776','2774','2767', '2761','2754','2752','2747' ]
-
-#redNewDates()
+redNewDates()
 list = getList()
-time.sleep(30)
 parse2(list)
 testOPti2(spreadsheet)
 
