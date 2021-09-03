@@ -112,6 +112,7 @@ def getEnd(worksheet):
     return start
 
 def test3(worksheet):
+    print('Таблица: '+str(worksheet))
     b = worksheet.col_values(2)
     genCoord = []
     calenCoord = []
@@ -340,7 +341,11 @@ def parse2(list):
         j = j + 1
 
         if c>18 and c<38:
-            table = getTable2(i)
+            try:
+                table = getTable2(i)
+            except gspread.exceptions.WorksheetNotFound:
+                break
+
         elif c>=38:
             table = getTable3(i)
         else:
@@ -508,6 +513,7 @@ def parse2(list):
 
 
 def testOPti2(spreadsheet):
+    print()
     gsfb = gsf.batch_updater(spreadsheet)
     worksheet = spreadsheet.worksheet('шаблон')
     genZakazCoord, calendarZakazCoord, operZakazCoord = test3(worksheet)
@@ -782,5 +788,6 @@ def tryValid(list):
 redNewDates()
 list = getList()
 parse2(list)
+time.sleep(30)
 testOPti2(spreadsheet)
 
