@@ -744,7 +744,10 @@ def parseRed():
     return newDates
 
 def redNewDates():
-    newDates = parseRed()
+    try:
+        newDates = parseRed()
+    except gspread.exceptions.APIError:
+        newDates = []
     if newDates !=[]:
         getNumTable = newDates[0][0]
         print(getNumTable)
